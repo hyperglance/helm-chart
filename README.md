@@ -10,15 +10,35 @@ This Repository contains a helm chart that can be used to deploy Hyperglance to 
 
 Please note, if installing if installating to EKS, you will need to ensure that EBS csi driver is installed on the cluster. More info [here](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html)
 
-### Clone the repository or Download the latest Release
+### Acquire the Hyperglance-helm chart
 
 :information_source: The preferred method of installing the helm chart is via the our public chart repository. Our charts are released with the app version and chart version in lockstep. 
 
 To download the helm chart from our public repository (preferred):
-```bash
-helm pull oci://registry-1.docker.io/hyperglance/helm
+```console
+helm repo add hyperglance https://hyperglance.github.io/helm-chart/
+helm repo update
 ```
-This will download a helm-x.x.xx.tgz file.
+
+### Provenance (optional)
+The Hyperglance helm charts are signed by our gpg key. You can verify the release prior to installation by appended --verify to the helm install command.
+
+```console
+helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yml --verify
+```
+
+If you wish to make use of this functionality, you will need to import our public gpg key.
+
+```console
+# Download our publick gpg key
+wget https://hyperglance-public-keys.s3.eu-west-2.amazonaws.com/hyperglance-pub.gpg
+
+# Import the key
+gpg --import hyperglance-pub.gpg
+
+# Export key to pubring so helm can access
+gpg --export >~/.gnupg/pubring.gpg
+```
 
 ### Create a namespace (Optional)
 
@@ -26,15 +46,15 @@ You may wish to deploy Hyperglance to its own [namespace](https://kubernetes.io/
 
 To create one, execute the following commands:
 
-```bash
+```console
 kubectl create ns hyperglance
 ```
 Alternatively, you can append the following to the helm install command described later in this document.
-```bash
+```console
 -n hyperglance --create-namespace
 
 # the complete command would look like
-helm install hyperglance helm-x.x.xx.tgz -n hyperglance --create-namespace
+helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yml
 ```
 
 ### Customise the installation
@@ -211,7 +231,7 @@ APACHE_DISABLE_HTTPS: true
 
 Next, we need to create a secret of type tls within the cluster to store the tls certificate and key. That can be done by
 
-```bash
+```console
 kubectl create -n istio-ingress secret tls apache-ssl \
   --key=path/to/key.key \
   --cert=path/to/cert.crt
@@ -304,7 +324,7 @@ Create a role, select the trusted entity as the OIDC provider created in the pre
 
 We'll reduce the scope of this trust to only the service account we will create on EKS. On the newly created role in AWS IAM, edit the trust policy/trust relationship. It will look something like this by default:
 
-```bash
+```console
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -326,7 +346,7 @@ We'll reduce the scope of this trust to only the service account we will create 
 
 Change the line after string equals to the following, substituting  <namespace>, <service-account-username> and changing :aud to :sub:
 
-```bash
+```console
 "StringEquals": {
           "oidc.eks.<AWS REGION>.amazonaws.com/id/183E80BB183AB94E102232070EDC4969:sub": "system:serviceaccount:<namespace>:<service-account-username>"
 }
@@ -383,7 +403,7 @@ eks:
 
 To deploy hyperglance using helm, run the following commands from the same directory as the downloaded helm chart:
 
-```bash
+```console
 # Named Namespace (preferred)
 helm install hyperglance helm-x.x.xx.tgz -n hyperglance
 
@@ -396,14 +416,14 @@ helm install hyperglance helm-x.x.xx.tgz
 
 Alternatively, you may download and install in a single command, as shown below
 
-```bash
+```console
  helm install hyperglance oci://registry-1.docker.io/hyperglance/helm  -n hyperglance -f values.yaml
 ```
 
 ## Access Hyperglance WebUI
 If deployed to EKS, you can use the following command to get the public url for Hyperglance. Omit -n hyperglance if deployed to the default namespace, or provide the correct namespace if deployed into another namespace.
 
-```bash
+```console
 kubectl get svc -n hyperglance
 
 # Output
