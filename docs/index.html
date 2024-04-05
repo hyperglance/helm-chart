@@ -55,7 +55,11 @@
 			<div><div class="lds-dual-ring"></div></div>
 			<p>Hyperglance Helm chart Repository</p>
 			<p>Add this repository by running:</p>
-			<p>helm repo add "repo address here"</p>
+			<p><code>helm repo add hyperglance https://hyperglance.github.io/helm-chart/</code></p>
+			<p>Update your local helm repo cache by running:</p>
+			<p><code>helm repo update</code></p>
+			<p>Install Hyperglance by running:</p>
+			<p><code>helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yml</code></p>
 		</div>
 	</body>
 </html>
