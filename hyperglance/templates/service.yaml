@@ -1,0 +1,70 @@
+{{ if not .Values.eks.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "hyperglance.name" . }}
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+{{ if .Values.service.awsNlb.enabled }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: {{ .Values.service.awsNlb.scheme }}
+{{ end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.servicehttp.port }}
+      targetPort: 80
+      protocol: TCP
+      name: http
+    - port: {{ .Values.servicehttps.port }}
+      targetPort: 443
+      protocol: TCP
+      name: https
+    {{ if .Values.bypassHttpd.enabled }}
+    - port: {{ .Values.bypassHttpd.wildfly_http_port }}
+      targetPort: 8080
+      protocol: TCP
+      name: httpwildfly
+    - port: {{ .Values.bypassHttpd.wildfly_https_port }}
+      targetPort: 8443
+      protocol: TCP
+      name: httpswildfly
+    {{ end }}
+    {{ if .Values.frontend_dev.enabled }}
+    - port: {{ .Values.frontend_dev.port }}
+      targetPort: {{ .Values.frontend_dev.port }}
+      protocol: TCP
+      name: servicehttpreact
+    {{ end }}
+  selector:
+    app: {{ template "hyperglance.name" . }}
+{{ end }}
+{{ if .Values.eks.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "hyperglance.name" . }}
+  namespace: {{.Values.eks.namespace }}
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  # CIS Control 5.1.5
+  automountServiceAccountToken: false
+  # type: {{ .Values.eks.service.type }}
+  type: {{ .Values.eks.service.type }}
+  ports:
+    - port: {{ .Values.eks.service.https.port }}
+      targetPort: 443
+      protocol: TCP
+      name: https
+  selector:
+    app: {{ template "hyperglance.name" . }}
+{{ end }}

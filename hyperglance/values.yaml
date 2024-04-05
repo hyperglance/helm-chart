@@ -1,0 +1,413 @@
+## @section Hyperglance parameters
+## Hyperglance Application Parameters
+## The following parameters configure the Hyperglance application itself.
+
+## @param URL Set the URL that Hyperglance can be reached on.
+URL: ''
+
+## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
+RUNNING_IN: ''
+
+## @param AWS_COST_BUCKET https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
+AWS_COST_BUCKET: ''
+
+## @param AWS_COST_MARKETPLACE https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
+AWS_COST_MARKETPLACE: ''
+
+## @param AWS_ENABLE_ACCESS_KEYS Set to true to enable the use of aws access key/secrets in the hyperglance ui.
+AWS_ENABLE_ACCESS_KEYS: ''
+
+## @param AWS_COST_USAGE_ACCOUNTS https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
+AWS_COST_USAGE_ACCOUNTS: ''
+
+## @param AZURE_COST_STORAGEACCOUNT https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
+AZURE_COST_STORAGEACCOUNT: ''
+
+## @param AZURE_COST_CONTAINER https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
+AZURE_COST_CONTAINER: ''
+
+## @param CONFIG_FORCE_persist_attributes This option should remain unchanged unless told otherwise by your Hyperglance representative.
+CONFIG_FORCE_persist_attributes: ''
+
+## @param CONFIG_FORCE_persist_topology This option should remain unchanged unless told otherwise by your Hyperglance representative.
+CONFIG_FORCE_persist_topology: ''
+
+## @param CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode This option should remain unchanged unless told otherwise by your Hyperglance representative.
+CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode: ''
+
+## @param CONFIG_FORCE_license_use_aws This option should remain unchanged unless told otherwise by your Hyperglance representative.
+CONFIG_FORCE_license_use_aws: ''
+
+## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
+KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
+
+## @param MAX_HEAPSIZE Legacy option that will be deprecated. Sets wildfly's Java heapsize. This option should remain unchanged unless told otherwise by your Hyperglance representative.
+MAX_HEAPSIZE: '4096m'
+
+## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode. 
+USE_SECMGR: 'false'
+
+## @param USE_SECMGR_DEBUGGING [default: false] Set to true to enable secmgr within wildfly in debugging mode. 
+USE_SECMGR_DEBUGGING: 'false' 
+
+## @param AWS_COST_CSV_CUSTOMFORMAT.ENABLED This option should remain unchanged unless told otherwise by your Hyperglance representative.
+## @param AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_REGEX This option should remain unchanged unless told otherwise by your Hyperglance representative.
+## @param AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_PATTERN This option should remain unchanged unless told otherwise by your Hyperglance representative.
+## @param AWS_COST_CSV_CUSTOMFORMAT.DATEFORMAT This option should remain unchanged unless told otherwise by your Hyperglance representative.
+AWS_COST_CSV_CUSTOMFORMAT:
+  ENABLED: 'false'
+  FILENAME_DATE_REGEX: ''
+  FILENAME_DATE_PATTERN: ''
+  DATEFORMAT: ''
+
+## @section Hyperglance Apache SSL parameters
+## Hyperglance SSL Parameters
+## These parameters are stored as secrets within kubernetes.
+
+## @param httpdSSL.certificate Set the tls certificate for the Hyperglance webui.
+## @param httpdSSL.key Set the tls certificate for the Hyperglance webui.
+httpdSSL:
+  certificate: |
+    -----BEGIN CERTIFICATE-----
+    MIIDVDCCAjygAwIBAgIJAI/kNmmHcVLKMA0GCSqGSIb3DQEBCwUAMFExFDASBgNV
+    BAMMC0h5cGVyZ2xhbmNlMRkwFwYDVQQKDBBIeXBlcmdsYW5jZSBJbmMuMREwDwYD
+    VQQHDAhTYW4gSm9zZTELMAkGA1UEBhMCVVMwHhcNMjAxMDI5MTIyNjI5WhcNMjEx
+    MTIzMTIyNjI5WjBRMRQwEgYDVQQDDAtIeXBlcmdsYW5jZTEZMBcGA1UECgwQSHlw
+    ZXJnbGFuY2UgSW5jLjERMA8GA1UEBwwIU2FuIEpvc2UxCzAJBgNVBAYTAlVTMIIB
+    IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs5/jnRTs8a2jjlvOFzq9HyD1
+    WiMqkA9T/PZB+otf8k16ts5ghd0fRzLQQX9uTV/ewKoIHENYFWURhzPmrEFbYYAb
+    f6pkq0nv4dl7ifCiSsg1bIGnq5ZeWXmgOT9r4j1BRmXF4sztLSVcpkFi6h/3DebU
+    0T+vb/umwTHOnRIfb2nRnGabzVRI5JkIGdGQZaHahx3OPV9fIareKdsdiysy0fWD
+    DULmnZTXcTzxzc62cJG0aye719f9i0Yc+uhEel377vceG7V7qEr8xmrtpUFUrsF6
+    BW69jljJgocu0OnfrHHLL9ZH1tZW36f8P/bP72cQk3169nXFDOpGfKoLUdjfPQID
+    AQABoy8wLTAWBgNVHREEDzANggtIeXBlcmdsYW5jZTATBgNVHSUEDDAKBggrBgEF
+    BQcDATANBgkqhkiG9w0BAQsFAAOCAQEACOyJoCXQNHld/Feba433mq39a+CR1rqX
+    KIF8EusJshQSn1rFIU5khhnmOQMAOb2xFpp5656nFA/fsMXvsUzDlNm0G3NdGERG
+    svqwpfHPFtQdyjwFtV8CmPB/DacJgc5PGuYuVm8JzYa2SleqQl0ehw9r38F87ktV
+    Ycdg0ykAVphT+d2CknH+MXBXpQRpG1KGiL1EKOqvay4fgFFklHpG2NxLNMC4eCCf
+    XE71KPpeNy5sXH24j0c5eFmfIJ+Ce+CdMxvlQvOU0WB6pNfzwo80n7Gv8HZJcvBk
+    Uik8Pm8rGh65JyaXkpp4AeOZpoeDYjht7DFF344WUu0T6+D/s4jz+A==
+    -----END CERTIFICATE-----
+  key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCzn+OdFOzxraOO
+    W84XOr0fIPVaIyqQD1P89kH6i1/yTXq2zmCF3R9HMtBBf25NX97AqggcQ1gVZRGH
+    M+asQVthgBt/qmSrSe/h2XuJ8KJKyDVsgaerll5ZeaA5P2viPUFGZcXizO0tJVym
+    QWLqH/cN5tTRP69v+6bBMc6dEh9vadGcZpvNVEjkmQgZ0ZBlodqHHc49X18hqt4p
+    2x2LKzLR9YMNQuadlNdxPPHNzrZwkbRrJ7vX1/2LRhz66ER6Xfvu9x4btXuoSvzG
+    au2lQVSuwXoFbr2OWMmChy7Q6d+sccsv1kfW1lbfp/w/9s/vZxCTfXr2dcUM6kZ8
+    qgtR2N89AgMBAAECggEAPPSlaUkQn3MtbcH5zihAxa+Jk20bpIePGOj4uu1RQgjI
+    /ABNASBo3OCBi7iS1e8SyI7q8axo19nUeO1D+nCzcgLnUgug3f/ZR+tl4QmoCXin
+    qIrXO4NrwTFlDghXtA7Vd+5RmQWx9wAW0NSfnJP8YttSnS/feUEM9cLROrxLrqLI
+    rYl/ACVrpsbgQ07sqm70/gXQiqvVO0+1hflsWLTKob0t3GEWXDnSUZPXDo4qvx0d
+    57P8rpMworp1cyCqHLsqbAVlqz7QxkY40qUiJSQTCcJh/1pazaACHmaVm4dgpocm
+    pCieQkFkrfGiBmU4YIm3PD1gTYX4mHylbMAiREP8AQKBgQDgd9vnnsCylkGITbsJ
+    kvixEHzNiJ72JiXhtJ7d32kdHWB04DL1t2zVIm99xiyIIvtehGZh2+OlrKFzf0oE
+    Y2Sy1zzWz/2HuL9r1GuxC0olEXSb6zWCpUSVuXwHYJdGsB1I1nZeV4BxucmBs/PM
+    WSs+3OpyXmpGyn/a+polp1xE6QKBgQDM22Z2MF4KkA/1jO0WjdSiIZnWKBXeCLkY
+    8HV/7DSaDOUs0qVGBIrtLlE4stqdY/c+o+D6jaLysNc3I7KKhoWK8ZsiRQlnK1Id
+    XfIa9reNYh5SHHnCAFgqOgaA7B8Sv3adG69yZY4sD+E93JiTiyjCit9SIzULuMdE
+    WvQZLwTjNQKBgGdeSuJq9QpIr3z5bryF9gh0M0TjOXDZOHCsIMzD6UADGzw3UsBc
+    671q0jT1YeR/V4q7JfrCrB7LVL4/S/KhYuoIvHef6Hzr0xrxA3bQYCCZ3T1AH7A+
+    M0tP05ICJSfkSlgUiwX+/aNhjy4vlIHyPjwAt+ZbHE3lSuOoq/vTCmahAoGAClCx
+    5BmjYpzGcPLbrVsO7esLOAFkuH1v9JWHFR3ruCYWFB+3OsNXy4GdjWFUKMCz3m+a
+    EIO5RMcqzxf5EYiciNaJnTwksRE5XUkxu7HYpEHgjPnqF5600cuCMFOzbNo/OsH+
+    H6CFfCqAiQDmnedP8hvUCurC7Qgs4IBD8lCvylECgYEAqQPEEP/3iPVh+HAqLn3X
+    CbZ0YOgZsE9QFmJCYmkF4f/g91PchuvV2T7ZoKqOyL+uu6z0OeoSznungujFPtSb
+    MDdKyiZ79TCgFvFY5p8EZaVOKGmXVw5DOBjdfAJepG/rrgu8uIWi4MoVASqED34U
+    Z2R6WaUqf1v+UMjqc404G/w=
+    -----END PRIVATE KEY-----
+
+## @section Hyperglance SAML parameters
+## Hyperglance SAML Parameters
+## These parameters are stored as secrets within kubernetes.
+
+## @param saml.enabled [default: false] Set to true to enable saml sso for Hyperglance.
+## @param saml.spXml https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
+## @param saml.idpXml https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
+## @param saml.spCert https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
+## @param saml.spKey https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
+saml:
+  enabled: false
+  spXml: ''
+  idpXml: ''
+  spCert: ''
+  spKey: ''
+
+## @section Hyperglance Product License
+
+## @param hgBin Hyperglance initial license key. Please contact Hyperglance support to request a trial key.
+hgBin: h6ZRHkSWoPZFAZCnm0Lx2EPOzQ3qeyR2oAziMLxQKKyUKky+lKJfYhbdE4T0dIhgcnSrUy/65dhOAXlDFdyegIVe1EVURapOJNVhPNA04R5ZNKDheFFK7YjR2UIz3LiWt4vGTf89uCKxDonM1QSxL88dg/e+oVicBlS4Zm6x636B/1igeHmo60sTZ7NwMLwavoXwdlgSxM4QJA1FeSu3SBCnrr2uTThNP9Nqfu0YbwKxMGAy+HwdPb7MXzfq6HOEyPbe0sp6zBzng/1x1R0+f14OklQQQOZ/Hi3W+W+nGs8a0sJHgFGZ9RxH6MVP5nnYYBGCgnFuNHBnjeSJtRwU8XZBKHszyu6bmo+Yq57u90x4yAQwaSYqOxc0FNYFNKF+316xvOZGOwHsEDWQqDfIRec08UeciJZngje5Le3xsDULXpNWlrJkox6xIrXXoq7zSC0qS/fzon2ghwlVu/zBjCSIvt8lqatdoyH4d9eNBYcFIjka4QOp1BzMP39H5NuEXe78tI1ZJ5iMRKAMeoeOxmvvhYRBpQ7tlbmyYZgcr5j3h2yeVHC/luiFdFVgHFMaeKxIEKS1+m2e3S5MfKUOsv/8TayvmYHFlA4HX6rdjd9UfjvBVSgy9mNmxDjdt62JV04/x4Oy4QRfFtGYjvGXFIIKi3M48eTK7lqtUo0r0ioGb1EDSQtVAb3r3Pjb9LL9NNau5zBZBkCiZ3uf/+M3mJchWjp/Qaga3j9hRytJYRARmVSkLFblM3OiIodpmTcplqjuBW7O9F/Jd0AhX02iKyY9vrfmW5dN3dA4fd7rYecjS0mRIHl4h3BwDbRD3Lzt7tLj5zb3suHBvhkMjnP1wA==
+
+## @section Hyperglance Proxy parameters
+## Hyperglance Proxy Parameters
+## If your environment requires the use of a proxy, set the following options. These parameters are stored as secrets within kubernetes.
+
+## @param proxy.enabled [default: false] Set to true to enable
+## @param proxy.host FQDN of your proxy host.
+## @param proxy.port Proxy port
+## @param proxy.user Proxy username
+## @param proxy.pass Proxy Password
+proxy:
+  enabled: false
+  host: ''
+  port: '3128'
+  user: ''
+  pass: ''
+
+## @section Hyperglance Custom Postgresql parameters
+## Hyperglance Custom Postgresql server
+## If your environment requires the use of your own postgresql server, set the following options. These parameters are stored as secrets within kubernetes.
+
+## @param customPostgres.enabled [default: false] Set to true to enable using a custom postgres server. This disabled the bundled postgresql container.
+## @param customPostgres.host Your postgresql host
+## @param customPostgres.port Your postgresql port
+## @param customPostgres.user Your postgresql username
+## @param customPostgres.pass Your postgresql password
+customPostgres:
+  enabled: false
+  host: postgresql
+  port: 5432
+  user: postgres
+  pass: postgres
+
+## @section Hyperglance container specific configuration options
+
+## @param postgresql.image [default: ] Generally left blank as image is defined in statefulset as a default. 
+## @param postgresql.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
+## @param postgresql.resources.requests.memory [default: 2Gi]
+## @param postgresql.resources.requests.cpu [default: 250m]
+## @param postgresql.resources.limits.memory [default: 4Gi]
+## @param postgresql.resources.limits.cpu [default: 1000m]
+## @param postgresql.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
+## @param postgresql.securityContext.allowPrivilegeEscalation  Not currently in use.
+## @param postgresql.securityContext.capabilities.drop Not currently in use.
+## @param postgresql.securityContext.runAsNonRoot Not currently in use.
+## @param postgresql.securityContext.readOnlyRootFilesystem Not currently in use.
+## @param postgresql.securityContext.runAsUser Not currently in use.
+## @param postgresql.securityContext.seccompProfile.type Not currently in use.
+postgresql:
+  image:
+  tag:
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "250m"
+    limits:
+      memory: "4Gi"
+      cpu: "1000m"
+  enable_security_context: false
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+## @param wildfly.image [default: ] Generally left blank as image is defined in statefulset as a default. 
+## @param wildfly.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
+## @param wildfly.resources.requests.memory [default:4Gi]
+## @param wildfly.resources.requests.cpu [default:500m]
+## @param wildfly.resources.limits.memory [default:4Gi]
+## @param wildfly.resources.limits.cpu [default:2000m]
+## @param wildfly.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
+## @param wildfly.securityContext.allowPrivilegeEscalation Not currently in use.
+## @param wildfly.securityContext.capabilities.drop Not currently in use.
+## @param wildfly.securityContext.runAsNonRoot Not currently in use.
+## @param wildfly.securityContext.readOnlyRootFilesystem Not currently in use.
+## @param wildfly.securityContext.runAsUser Not currently in use.
+## @param wildfly.securityContext.seccompProfile.type Not currently in use.
+wildfly:
+  image:
+  tag:
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+  enable_security_context: false
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+## @param httpd.image [default: ] Generally left blank as image is defined in statefulset as a default. 
+## @param httpd.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
+## @param httpd.resources.requests.memory [default:500Mi]
+## @param httpd.resources.requests.cpu [default:250m]
+## @param httpd.resources.limits.memory [default:2Gi]
+## @param httpd.resources.limits.cpu [default:500m]
+## @param httpd.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
+## @param httpd.securityContext.allowPrivilegeEscalation Not currently in use.
+## @param httpd.securityContext.capabilities.drop Not currently in use.
+## @param httpd.securityContext.runAsNonRoot Not currently in use.
+## @param httpd.securityContext.readOnlyRootFilesystem Not currently in use.
+## @param httpd.securityContext.runAsUser Not currently in use.
+## @param httpd.securityContext.seccompProfile.type Not currently in use.
+httpd:
+  image:
+  tag:
+  resources:
+    requests:
+      memory: "500Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "500m"
+  enable_security_context: false
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+## @param install.image [default: ] Generally left blank as image is defined in statefulset as a default. 
+## @param install.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
+## @param install.resources.requests.memory [default:2Gi]
+## @param install.resources.requests.cpu [default:250m]
+## @param install.resources.limits.memory [default:2Gi]
+## @param install.resources.limits.cpu [default:500m]
+## @param install.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
+## @param install.securityContext.allowPrivilegeEscalation Not currently in use.
+## @param install.securityContext.capabilities.drop Not currently in use.
+## @param install.securityContext.runAsNonRoot Not currently in use.
+## @param install.securityContext.readOnlyRootFilesystem Not currently in use.
+## @param install.securityContext.runAsUser Not currently in use.
+## @param install.securityContext.seccompProfile.type Not currently in use.
+install:
+  image: busybox
+  tag: latest
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "500m"
+  enable_security_context: false
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+## @section Other parameters
+
+## @param dnsPolicy DNSPolicy for pod.
+dnsPolicy: 'Default'
+
+## @param replicaCount Number of replicas of the Hyperglance deployment
+replicaCount: 1
+
+## @param service.type [default: LoadBalancer] Hyperglance service type.
+## @param service.awsNlb.enabled [default: false] If running on aws and are using a awsnlb to provide a way into Hyperglance, set this to true.
+## @param service..scheme [default: internet-facing] This allows access to Hyperglance via the internet. https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html#load-balancer-scheme 
+service:
+  type: LoadBalancer
+  awsNlb:
+    enabled: false
+    scheme: internet-facing
+
+## @param bypassHttpd.enabled [default: false] Set to true to allow bypassing apache completely and accessing Hyperglance directly. 
+## @param bypassHttpd.wildfly_http_port
+## @param bypassHttpd.wildfly_https_port
+bypassHttpd:
+  enabled: false
+  wildfly_http_port: 8080
+  wildfly_https_port: 8443
+
+## @param [default: false] Sets apache to run over port 80. Useful if you wish to terminate ssl yourself.
+APACHE_DISABLE_HTTPS: false
+
+## @param servicehttp.port
+servicehttp:
+  port: 80
+
+## @param servicehttps.port
+servicehttps:
+  port: 443
+
+## @param privateImageRepo.enabled [default: false] Enable the use of a private rep. Generally only used for internal use.
+## @param privateImageRepo.registry [default: https://index.docker.io/v1/]
+## @param privateImageRepo.username Registry username
+## @param privateImageRepo.password Registry password
+## @param privateImageRepo.email registry email
+privateImageRepo:
+  enabled: false
+  registry: https://index.docker.io/v1/
+  username: 
+  password: 
+  email: 
+
+## @param serviceAccount.enabled Enable a AWS service account.
+## @param serviceAccount.name Service account name
+## @param serviceAccount.iamRole Service account role ARN
+serviceAccount:
+  enabled: false
+  name: hyperglance
+  iamRole: ""
+
+## @param imagePullPolicy [default: Always]
+## @param restartPolicy [default: Always]
+imagePullPolicy: Always
+restartPolicy: Always
+
+## @param frontend_dev.enabled
+## @param frontend_dev.image
+## @param frontend_dev.tag
+## @param frontend_dev.port
+frontend_dev:
+  enabled: false
+  image: 
+  tag: 
+  port: 
+
+## @section Hyperglance EKS Fargate
+## Hyperglance EKS Fargate Specific Parameters
+
+## @param eks.enabled [default: false] Set to true to enable eks fargate deployment. Please check the readme for further information regarding deployment to EKS Fargate.
+## @param eks.namespace EKS Fargate namespace Hyperglance is deployed to.
+## @param eks.hg_url Hyperglance url - Can be mapped to .Values.URL
+## @param eks.service.type [default: LoadBalancer] Service typer
+## @param eks.service.https.port [default: 443] HTTPS port
+## @param eks.efs.filesystem_id EFS Filesystem ID (fs-xxxxx)
+## @param eks.efs.postgresql.accesspoint_id EFS Access Point ID for postgresql data (fsap-xxxx)
+## @param eks.efs.postgresql.sub_path EFS sub path for postgresql data.
+## @param eks.efs.hyperglance.accesspoint_id EFS Access Point ID for Hyperglance data (fsap-xxxx)
+## @param eks.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
+## @param eks.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
+eks:
+  enabled: false
+  namespace: ""
+  hg_url: ""
+  service:
+    type: LoadBalancer
+    https:
+      port: 443
+  efs:
+    filesystem_id: fs-xxxx
+    postgresql:
+      accesspoint_id: fsap-xxxx
+      sub_path: ""
+    hyperglance:
+      accesspoint_id: fsap-xxxx
+      sub_path: ""
+  albCertificateArn: arn:aws:acm:xxxx

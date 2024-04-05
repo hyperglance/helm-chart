@@ -1,0 +1,51 @@
+{{ if .Values.eks.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-data
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+   capacity:
+      storage: 20Gi
+   volumeMode: Filesystem
+   accessModes:
+      - ReadWriteOnce
+   persistentVolumeReclaimPolicy: Retain
+   storageClassName: efs-sc
+   claimRef:
+      namespace: {{ .Release.Namespace }}
+      name: {{ .Release.Name }}-data
+   csi:
+      driver: efs.csi.aws.com
+      volumeHandle: {{ printf "%s:%s:%s" $.Values.eks.efs.filesystem_id $.Values.eks.efs.hyperglance.sub_path $.Values.eks.efs.hyperglance.accesspoint_id | quote }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-postgresql-data
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+   capacity:
+      storage: 20Gi
+   volumeMode: Filesystem
+   accessModes:
+      - ReadWriteOnce
+   persistentVolumeReclaimPolicy: Retain
+   storageClassName: efs-sc
+   claimRef:
+      namespace: {{ .Release.Namespace }}
+      name: {{ .Release.Name }}-postgresql-data
+   csi:
+      driver: efs.csi.aws.com
+      volumeHandle: {{ printf "%s:%s:%s" $.Values.eks.efs.filesystem_id $.Values.eks.efs.postgresql.sub_path $.Values.eks.efs.postgresql.accesspoint_id | quote }}
+{{ end }}

@@ -1,0 +1,24 @@
+Please allow up to 5 minutes for the pod to provision and become available on the load balancer
+{{ if .Values.eks.enabled }}
+1. Get the Application Load Balancer address by running this command:
+
+kubectl get ingress hyperglance
+
+This will provide you with the ALB address, which you can use to access Hyperglance.
+
+The default username and password is admin/admin. Please change this as soon as possible.
+{{ end }}
+
+{{ if not .Values.eks.enabled }}
+Access the Hyperglance webui using the instance ip on port 443. You can acquire this by running:
+
+If you are running this on a Hyperglance Marketplace AMI, you can use the following to acquire the Hyperglance webui address.
+ip=$(curl -s ipv4.icanhazip.com) && echo https://$(echo $ip)
+
+For EKS based deployments, you can run the following command. Omit the -n hyperglance if you deployed to the default namespace.
+
+kubectl get svc -n hyperglance
+
+The default username and password is admin/admin. Please change this as soon as possible.
+
+{{ end }}

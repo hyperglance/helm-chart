@@ -1,0 +1,22 @@
+apiVersion: v2
+appVersion: 0.0.0
+description: Cloud visualisation, Security and Compliance monitoring system
+home: https://www.hyperglance.com
+icon: https://hyperglance-public-assets.s3.us-east-2.amazonaws.com/hyperglance.png
+keywords:
+- cloud
+- aws
+- azure
+- k8
+- kubernetes
+- visualisation
+- security
+- compliance
+- monitoring
+- cost
+- documentation
+maintainers:
+- email: itsupport@hyperglance.com
+  name: Hyperglance Ltd
+name: hyperglance-helm
+version: 0.0.0
