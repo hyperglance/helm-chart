@@ -34,6 +34,12 @@ spec:
       protocol: TCP
       name: httpswildfly
     {{ end }}
+    {{ if .Values.backend_dev.enabled }}
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgresport
+    {{ end }}
     {{ if .Values.frontend_dev.enabled }}
     - port: {{ .Values.frontend_dev.port }}
       targetPort: {{ .Values.frontend_dev.port }}

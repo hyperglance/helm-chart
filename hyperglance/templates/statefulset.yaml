@@ -74,6 +74,10 @@ spec:
         - name: postgresql-data
           mountPath: /var/lib/pgsql
           readOnly: false
+      {{ if .Values.backend_dev.enabled }}
+        ports:
+        - containerPort: 5432
+        {{ end }}
       {{ end }}
 
       - name: httpd

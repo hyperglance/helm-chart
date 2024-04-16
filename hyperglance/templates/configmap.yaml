@@ -10,8 +10,6 @@ metadata:
 data:
   SAML_ENABLED: '{{ .Values.saml.enabled }}'
   NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
-  CONFIG_FORCE_persist_attributes: '{{ .Values.CONFIG_FORCE_persist_attributes }}'
-  CONFIG_FORCE_persist_topology: '{{ .Values.CONFIG_FORCE_persist_topology }}'
   CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode: '{{ .Values.CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode }}'
   AWS_COST_BUCKET: '{{ .Values.AWS_COST_BUCKET }}'
   AWS_COST_MARKETPLACE: '{{ .Values.AWS_COST_MARKETPLACE }}'
@@ -29,3 +27,5 @@ data:
   AWS_COST_CSV_FILENAME_DATE_PATTERN: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_PATTERN }}'
   AWS_COST_CSV_DATEFORMAT: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.DATEFORMAT }}'
   APACHE_DISABLE_HTTPS: '{{ .Values.APACHE_DISABLE_HTTPS }}'
+  {{- include "appendRuntimeParameters" (dict "configmap" .Values.advanced_runtime_properties "enabled" .Values.advanced_runtime_properties.enabled) | nindent 2 }}
+

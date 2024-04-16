@@ -380,6 +380,9 @@ frontend_dev:
   tag: 
   port: 
 
+backend_dev:
+  enabled: false
+
 ## @section Hyperglance EKS Fargate
 ## Hyperglance EKS Fargate Specific Parameters
 
@@ -411,3 +414,11 @@ eks:
       accesspoint_id: fsap-xxxx
       sub_path: ""
   albCertificateArn: arn:aws:acm:xxxx
+
+
+## @section Advanced Runtime Properties
+## Hyperglance Advanced Runtime Properties
+# requires encasing values (excepting enabled) in quotes for templating to work
+## @param advanced_runtime_properties.enabled Enables modifying runtime properties. This option should remain unchanged unless told otherwise by your Hyperglance representative.
+advanced_runtime_properties:
+  enabled: false
