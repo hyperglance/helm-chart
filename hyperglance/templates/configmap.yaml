@@ -10,7 +10,6 @@ metadata:
 data:
   SAML_ENABLED: '{{ .Values.saml.enabled }}'
   NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
-  CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode: '{{ .Values.CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode }}'
   AWS_COST_BUCKET: '{{ .Values.AWS_COST_BUCKET }}'
   AWS_COST_MARKETPLACE: '{{ .Values.AWS_COST_MARKETPLACE }}'
   AWS_ENABLE_ACCESS_KEYS: '{{ .Values.AWS_ENABLE_ACCESS_KEYS }}'
