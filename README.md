@@ -315,7 +315,7 @@ Populate the values.yaml with the options shown below.
 ## @param serviceAccount.name Service account name
 ## @param serviceAccount.iamRole Service account role ARN
 serviceAccount:
-  enabled: false
+  enabled: true
   name: hyperglance
   iamRole: ""
 
@@ -331,7 +331,7 @@ serviceAccount:
 ## @param eks.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
 ## @param eks.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
 eks:
-  enabled: false
+  enabled: true
   namespace: ""
   hg_url: ""
   service:
