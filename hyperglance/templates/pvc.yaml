@@ -7,6 +7,8 @@ metadata:
     chart: {{ template "hyperglance.chart" . }}
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+  annotations:
+    tilt.dev/down-policy: {{ .Values.tilt_dev_down_policy | default "delete" }}
 spec:
 {{ if .Values.eks.enabled }}
   storageClassName: efs-sc
@@ -28,6 +30,8 @@ metadata:
     chart: {{ template "hyperglance.chart" . }}
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+  annotations:
+    tilt.dev/down-policy: {{ .Values.tilt_dev_down_policy | default "delete" }}
 spec:
 {{ if .Values.eks.enabled }}
   storageClassName: efs-sc
