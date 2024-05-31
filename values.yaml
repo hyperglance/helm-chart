@@ -1,6 +1,13 @@
+## Generated on: 31-05-2024 11:11:45
+
+
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
 ## The following parameters configure the Hyperglance application itself.
+
+
+## @param hgBin Hyperglance initial license key. Please contact Hyperglance support to request a trial key.
+hgBin: h6ZRHkSWoPZFAZCnm0Lx2EPOzQ3qeyR2oAziMLxQKKyUKky+lKJfYhbdE4T0dIhgcnSrUy/65dhOAXlDFdyegIVe1EVURapOJNVhPNA04R5ZNKDheFFK7YjR2UIz3LiWt4vGTf89uCKxDonM1QSxL88dg/e+oVicBlS4Zm6x636B/1igeHmo60sTZ7NwMLwavoXwdlgSxM4QJA1FeSu3SBCnrr2uTThNP9Nqfu0YbwKxMGAy+HwdPb7MXzfq6HOEyPbe0sp6zBzng/1x1R0+f14OklQQQOZ/Hi3W+W+nGs8a0sJHgFGZ9RxH6MVP5nnYYBGCgnFuNHBnjeSJtRwU8XZBKHszyu6bmo+Yq57u90x4yAQwaSYqOxc0FNYFNKF+316xvOZGOwHsEDWQqDfIRec08UeciJZngje5Le3xsDULXpNWlrJkox6xIrXXoq7zSC0qS/fzon2ghwlVu/zBjCSIvt8lqatdoyH4d9eNBYcFIjka4QOp1BzMP39H5NuEXe78tI1ZJ5iMRKAMeoeOxmvvhYRBpQ7tlbmyYZgcr5j3h2yeVHC/luiFdFVgHFMaeKxIEKS1+m2e3S5MfKUOsv/8TayvmYHFlA4HX6rdjd9UfjvBVSgy9mNmxDjdt62JV04/x4Oy4QRfFtGYjvGXFIIKi3M48eTK7lqtUo0r0ioGb1EDSQtVAb3r3Pjb9LL9NNau5zBZBkCiZ3uf/+M3mJchWjp/Qaga3j9hRytJYRARmVSkLFblM3OiIodpmTcplqjuBW7O9F/Jd0AhX02iKyY9vrfmW5dN3dA4fd7rYecjS0mRIHl4h3BwDbRD3Lzt7tLj5zb3suHBvhkMjnP1wA==
 
 ## @param URL Set the URL that Hyperglance can be reached on.
 URL: ''
@@ -26,29 +33,16 @@ AZURE_COST_STORAGEACCOUNT: ''
 ## @param AZURE_COST_CONTAINER https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
 AZURE_COST_CONTAINER: ''
 
-## @param CONFIG_FORCE_persist_attributes This option should remain unchanged unless told otherwise by your Hyperglance representative.
-CONFIG_FORCE_persist_attributes: ''
-
-## @param CONFIG_FORCE_persist_topology This option should remain unchanged unless told otherwise by your Hyperglance representative.
-CONFIG_FORCE_persist_topology: ''
-
-## @param CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode This option should remain unchanged unless told otherwise by your Hyperglance representative.
-CONFIG_FORCE_Amazon_cost_ignoreManifestFileForOverwriteMode: ''
-
-## @param CONFIG_FORCE_license_use_aws This option should remain unchanged unless told otherwise by your Hyperglance representative.
-CONFIG_FORCE_license_use_aws: ''
-
 ## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
 KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
 
 ## @param MAX_HEAPSIZE Legacy option that will be deprecated. Sets wildfly's Java heapsize. This option should remain unchanged unless told otherwise by your Hyperglance representative.
 MAX_HEAPSIZE: '4096m'
 
-## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode. 
-USE_SECMGR: 'false'
-
-## @param USE_SECMGR_DEBUGGING [default: false] Set to true to enable secmgr within wildfly in debugging mode. 
-USE_SECMGR_DEBUGGING: 'false' 
+## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode. Set DEBUGGING to true to set to alert only.
+USE_SECMGR:
+  ENABLED: 'false'
+  DEBUGGING: 'false'
 
 ## @param AWS_COST_CSV_CUSTOMFORMAT.ENABLED This option should remain unchanged unless told otherwise by your Hyperglance representative.
 ## @param AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_REGEX This option should remain unchanged unless told otherwise by your Hyperglance representative.
@@ -134,9 +128,6 @@ saml:
   spCert: ''
   spKey: ''
 
-## @param hgBin Hyperglance initial license key. Please contact Hyperglance support to request a trial key.
-hgBin: h6ZRHkSWoPZFAZCnm0Lx2EPOzQ3qeyR2oAziMLxQKKyUKky+lKJfYhbdE4T0dIhgcnSrUy/65dhOAXlDFdyegIVe1EVURapOJNVhPNA04R5ZNKDheFFK7YjR2UIz3LiWt4vGTf89uCKxDonM1QSxL88dg/e+oVicBlS4Zm6x636B/1igeHmo60sTZ7NwMLwavoXwdlgSxM4QJA1FeSu3SBCnrr2uTThNP9Nqfu0YbwKxMGAy+HwdPb7MXzfq6HOEyPbe0sp6zBzng/1x1R0+f14OklQQQOZ/Hi3W+W+nGs8a0sJHgFGZ9RxH6MVP5nnYYBGCgnFuNHBnjeSJtRwU8XZBKHszyu6bmo+Yq57u90x4yAQwaSYqOxc0FNYFNKF+316xvOZGOwHsEDWQqDfIRec08UeciJZngje5Le3xsDULXpNWlrJkox6xIrXXoq7zSC0qS/fzon2ghwlVu/zBjCSIvt8lqatdoyH4d9eNBYcFIjka4QOp1BzMP39H5NuEXe78tI1ZJ5iMRKAMeoeOxmvvhYRBpQ7tlbmyYZgcr5j3h2yeVHC/luiFdFVgHFMaeKxIEKS1+m2e3S5MfKUOsv/8TayvmYHFlA4HX6rdjd9UfjvBVSgy9mNmxDjdt62JV04/x4Oy4QRfFtGYjvGXFIIKi3M48eTK7lqtUo0r0ioGb1EDSQtVAb3r3Pjb9LL9NNau5zBZBkCiZ3uf/+M3mJchWjp/Qaga3j9hRytJYRARmVSkLFblM3OiIodpmTcplqjuBW7O9F/Jd0AhX02iKyY9vrfmW5dN3dA4fd7rYecjS0mRIHl4h3BwDbRD3Lzt7tLj5zb3suHBvhkMjnP1wA==
-
 ## @section Hyperglance Proxy parameters
 ## Hyperglance Proxy Parameters
 ## If your environment requires the use of a proxy, set the following options. These parameters are stored as secrets within kubernetes.
@@ -173,10 +164,10 @@ customPostgres:
 
 ## @param postgresql.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param postgresql.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
-## @param postgresql.resources.requests.memory [default: 2Gi]
-## @param postgresql.resources.requests.cpu [default: 250m]
-## @param postgresql.resources.limits.memory [default: 4Gi]
-## @param postgresql.resources.limits.cpu [default: 1000m]
+## @param postgresql.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param postgresql.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param postgresql.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param postgresql.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param postgresql.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
 ## @param postgresql.securityContext.allowPrivilegeEscalation  Not currently in use.
 ## @param postgresql.securityContext.capabilities.drop Not currently in use.
@@ -189,11 +180,11 @@ postgresql:
   tag:
   resources:
     requests:
-      memory: "2Gi"
-      cpu: "250m"
+      memory:
+      cpu:
     limits:
-      memory: "4Gi"
-      cpu: "1000m"
+      memory:
+      cpu:
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -207,10 +198,10 @@ postgresql:
 
 ## @param wildfly.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param wildfly.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
-## @param wildfly.resources.requests.memory [default:4Gi]
-## @param wildfly.resources.requests.cpu [default:500m]
-## @param wildfly.resources.limits.memory [default:4Gi]
-## @param wildfly.resources.limits.cpu [default:2000m]
+## @param wildfly.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param wildfly.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param wildfly.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param wildfly.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param wildfly.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
 ## @param wildfly.securityContext.allowPrivilegeEscalation Not currently in use.
 ## @param wildfly.securityContext.capabilities.drop Not currently in use.
@@ -223,11 +214,11 @@ wildfly:
   tag:
   resources:
     requests:
-      memory: "4Gi"
-      cpu: "500m"
+      memory:
+      cpu:
     limits:
-      memory: "4Gi"
-      cpu: "2000m"
+      memory:
+      cpu:
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -241,10 +232,10 @@ wildfly:
 
 ## @param httpd.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param httpd.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
-## @param httpd.resources.requests.memory [default:500Mi]
-## @param httpd.resources.requests.cpu [default:250m]
-## @param httpd.resources.limits.memory [default:2Gi]
-## @param httpd.resources.limits.cpu [default:500m]
+## @param httpd.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param httpd.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param httpd.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param httpd.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param httpd.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
 ## @param httpd.securityContext.allowPrivilegeEscalation Not currently in use.
 ## @param httpd.securityContext.capabilities.drop Not currently in use.
@@ -257,11 +248,11 @@ httpd:
   tag:
   resources:
     requests:
-      memory: "500Mi"
-      cpu: "250m"
+      memory:
+      cpu:
     limits:
-      memory: "2Gi"
-      cpu: "500m"
+      memory:
+      cpu:
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -275,10 +266,10 @@ httpd:
 
 ## @param install.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param install.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
-## @param install.resources.requests.memory [default:2Gi]
-## @param install.resources.requests.cpu [default:250m]
-## @param install.resources.limits.memory [default:2Gi]
-## @param install.resources.limits.cpu [default:500m]
+## @param install.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param install.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param install.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param install.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param install.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
 ## @param install.securityContext.allowPrivilegeEscalation Not currently in use.
 ## @param install.securityContext.capabilities.drop Not currently in use.
@@ -291,11 +282,11 @@ install:
   tag: latest
   resources:
     requests:
-      memory: "2Gi"
-      cpu: "250m"
+      memory:
+      cpu:
     limits:
-      memory: "2Gi"
-      cpu: "500m"
+      memory:
+      cpu:
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -376,8 +367,9 @@ frontend_dev:
   enabled: false
   image: 
   tag: 
-  port: 
+  port:
 
+## @param backend_dev.enabled [default: false] Internal dev use only 
 backend_dev:
   enabled: false
 
@@ -413,10 +405,8 @@ eks:
       sub_path: ""
   albCertificateArn: arn:aws:acm:xxxx
 
-
 ## @section Advanced Runtime Properties
 ## Hyperglance Advanced Runtime Properties
-# requires encasing values (excepting enabled) in quotes for templating to work
 ## @param advanced_runtime_properties.enabled Enables modifying runtime properties. This option should remain unchanged unless told otherwise by your Hyperglance representative.
 advanced_runtime_properties:
   enabled: false

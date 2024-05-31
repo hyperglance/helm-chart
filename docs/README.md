@@ -19,12 +19,21 @@ To download the helm chart from our public repository (preferred):
 helm repo add hyperglance https://hyperglance.github.io/helm-chart/
 helm repo update
 ```
+To install Hyperglance
+```console
+helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml
+```
+
+Tp update Hyperglance
+```console
+helm upgrade hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml
+```
 
 ### Provenance (optional)
 The Hyperglance helm charts are signed by our gpg key. You can verify the release prior to installation by appended --verify to the helm install command.
 
 ```console
-helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yml --verify
+helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml --verify
 ```
 
 If you wish to make use of this functionality, you will need to import our public gpg key.
@@ -49,93 +58,34 @@ To create one, execute the following commands:
 ```console
 kubectl create ns hyperglance
 ```
-Alternatively, you can append the following to the helm install command described later in this document.
+Alternatively, you can append the following to the helm install command described earlier in this document.
 ```console
 -n hyperglance --create-namespace
 
 # the complete command would look like
-helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yml
+helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml
 ```
 
 ### Customise the installation
-To customise the Hyperglance deployment, a values.yml can be created and passed to the helm command. 
+To customise the Hyperglance deployment, a values.yaml can be created and passed to the helm command. 
 
 The minimum configuration options to provide are:
 ```yaml
-# Set to 'AWS' to enable K8 service account and IAM role assumption in Hyperglance
-RUNNING_IN: '' 
-# Enable the use of aws access key/secrets in the hyperglance ui.
-AWS_ENABLE_ACCESS_KEYS: true
-```
+## @param URL Set the URL that Hyperglance can be reached on.
+URL: ''
 
-Below is a subset of additional configuration parameters that can be provided.
-
-```yaml
-# Set to 'AWS' to enable K8 service account and IAM role assumption in Hyperglance
+## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
 RUNNING_IN: ''
-# set the FQDN of the hyperglance, including scheme (eg, https://hyperglance.mycompany.com)
-URL: '' 
-# sslCertificate is the certificate for the Hyperglance frontend
-httpdSSL:
-  certificate: |
-    -----BEGIN CERTIFICATE-----
-    CERTIFICATE DATA HERE - NOTE THE YAML INDENTATION
-    -----END CERTIFICATE-----
-  key: |
-    -----BEGIN PRIVATE KEY-----
-    CERTIFICATE DATA HERE - NOTE THE YAML INDENTATION
-    -----END PRIVATE KEY-----
-
-# samlEnabled must be set to true, as well as providing the required config below to enable saml
-# For more information, please see https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
-# We provide a copy of the mellon-create-metadata.sh on our marketplace ami. This repo will be updated to include this at a later date.
-saml:
-  enabled: false
-  spXml: ''
-  idpXml: ''
-  spCert: ''
-  spKey: ''
-
-# proxy needs to be set if a proxy is needed for egress
-proxy:
-  enabled: false
-  host: ''
-  port: '3128'
-  user: ''
-  pass: ''
-
-# Custom postgres server
-customPostgres:
-  enabled: false
-  host: postgresql
-  port: 5432
-  user: postgres
-  pass: postgres
-
-# Enable the use of aws access key/secrets in the hyperglance ui.
-AWS_ENABLE_ACCESS_KEYS: ''
-
-# These options are used to define cost storage import details.
-# https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
-AZURE_COST_STORAGEACCOUNT: ''
-AZURE_COST_CONTAINER: ''
-# https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
-AWS_COST_BUCKET: ''
-AWS_COST_MARKETPLACE: ''
-AWS_COST_USAGE_ACCOUNTS: ''
-AWS_COST_CSV_CUSTOMFORMAT:
-  ENABLED: 'false'
-  FILENAME_DATE_REGEX: ''
-  FILENAME_DATE_PATTERN: ''
-  DATEFORMAT: ''
-
 ```
+
+A number of additional configuration parameters are exposed. Please see the values.yaml file for all the available parameters and associated documentation.
+
 
 ## ISTIO
 Hyperglance has support for [istio](https://istio.io/). There are 2 methods, depending on how you wish to terminate tls. These are detailed further below.
 
 ### Terminate SSL with the built in apache container
-For this method, we need to have the following configuration optios set in the values.yml file.
+For this method, we need to have the following configuration optios set in the values.yaml file.
 
 ```yaml
 # Default is of type loadbalancer. Set to ClusterIP to prevent an additional load balancer being exposed.
@@ -212,7 +162,7 @@ spec:
 Please note, the default destination for the hyperglance pod, when running in the hyperglance namespace is hyperglance-helm.hyperglance.svc.cluster.local. Amend this if you have deployed hyperglance to another namespace.
 
 ### Terminate SSL with Istio
-Terminating SSL with Istio requires your values.yml to include the following options set correctly for your deployment, otherwise SAML may not work correctly.
+Terminating SSL with Istio requires your values.yaml to include the following options set correctly for your deployment, otherwise SAML may not work correctly.
 
 ```yaml
 # Default is of type loadbalancer. Set to ClusterIP to prevent an additional load balancer being exposed.
@@ -304,7 +254,7 @@ Please note, the default destination for the hyperglance pod, when running in th
 
 This deployment assumes you already have the following prerequisites satisfied:
 
-:information_source: [This guide maybe useful in assisting you to satisfy these prerequisites](https://aws.amazon.com/blogs/containers/running-stateful-workloads-with-amazon-eks-on-aws-fargate-using-amazon-efs/)
+:information_source: [This guide may be useful in assisting you to satisfy these prerequisites](https://aws.amazon.com/blogs/containers/running-stateful-workloads-with-amazon-eks-on-aws-fargate-using-amazon-efs/)
 
 1. A functioning AWS EKS using Fargate cluster - [AWS guide](https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html) or [EKSCTL guide](https://eksctl.io/usage/fargate-support/)
 2. EKS ALB controller provisioned and configured - [AWS guide](https://aws.amazon.com/premiumsupport/knowledge-center/eks-alb-ingress-controller-fargate/)
@@ -352,9 +302,9 @@ Change the line after string equals to the following, substituting  <namespace>,
 }
 ```
 
-Make a note of the ARN of the role. You will need to populate this value in your values.yml.
+Make a note of the ARN of the role. You will need to populate this value in your values.yaml.
 
-Populate the values.yml with the options shown below. 
+Populate the values.yaml with the options shown below. 
 
 ```yaml
 ###
@@ -407,8 +357,8 @@ To deploy hyperglance using helm, run the following commands from the same direc
 # Named Namespace (preferred)
 helm install hyperglance helm-x.x.xx.tgz -n hyperglance
 
-# Named Namespace with additional values.yml
-helm install hyperglance helm-x.x.xx.tgz -n hyperglance -f path-to-values.yml
+# Named Namespace with additional values.yaml
+helm install hyperglance helm-x.x.xx.tgz -n hyperglance -f path-to-values.yaml
 
 # Default Namespace
 helm install hyperglance helm-x.x.xx.tgz

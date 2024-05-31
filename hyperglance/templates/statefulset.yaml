@@ -36,10 +36,10 @@ spec:
         image: {{ .Values.install.image }}:{{ .Values.install.tag }}
         {{ if .Values.install.enable_security_context }}
         securityContext: 
-          {{- toYaml $.Values.install.securityContext | nindent 12 }}
+          {{- toYaml $.Values.install.securityContext | nindent 10 }}
         {{ end }}
         resources:
-          {{- toYaml $.Values.install.resources | nindent 12 }}
+          {{- toYaml $.Values.install.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         {{ if .Values.customPostgres.enabled }}
         command: ['sh', '-c', '[ -d /mnt/data/rules ] && exit 0; mkdir -p /mnt/data/httpd_logs /mnt/data/wildfly_logs /mnt/data/mellon && touch /mnt/data/email.properties && echo "mail.smtp.auth=true" > /mnt/data/email.properties && echo "mail.smtp.starttls.enable=true" >> /mnt/data/email.properties && touch /mnt/data/hg.bin && cat /mnt/license/hg.bin > /mnt/data/hg.bin && mkdir -p /mnt/data/rules && chown -R 333: /mnt/data && chown root: /mnt/data/httpd_logs']
@@ -65,10 +65,10 @@ spec:
         image: {{ .Values.postgresql.image | default "hyperglance/postgresql" }}:{{ .Values.postgresql.tag | default .Chart.AppVersion }}
         {{ if .Values.postgresql.enable_security_context }}
         securityContext:
-          {{- toYaml $.Values.postgresql.securityContext | nindent 12 }}
+          {{- toYaml $.Values.postgresql.securityContext | nindent 10 }}
         {{ end }}
         resources:
-          {{- toYaml $.Values.postgresql.resources | nindent 12 }}
+          {{- toYaml $.Values.postgresql.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         volumeMounts:
         - name: postgresql-data
@@ -84,10 +84,10 @@ spec:
         image: {{ .Values.httpd.image | default "hyperglance/httpd" }}:{{ .Values.httpd.tag | default .Chart.AppVersion }}
         {{ if .Values.httpd.enable_security_context }}
         securityContext:
-          {{- toYaml $.Values.httpd.securityContext | nindent 12 }}
+          {{- toYaml $.Values.httpd.securityContext | nindent 10 }}
         {{ end }}
         resources:
-          {{- toYaml $.Values.httpd.resources | nindent 12 }}
+          {{- toYaml $.Values.httpd.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         envFrom:
         - configMapRef:
@@ -117,10 +117,10 @@ spec:
         image: {{ .Values.wildfly.image | default "hyperglance/wildfly" }}:{{ .Values.wildfly.tag | default .Chart.AppVersion }}
         {{ if .Values.wildfly.enable_security_context }}
         securityContext:
-          {{- toYaml $.Values.wildfly.securityContext | nindent 12 }}
+          {{- toYaml $.Values.wildfly.securityContext | nindent 10 }}
         {{ end }}
         resources:
-          {{- toYaml $.Values.wildfly.resources | nindent 12 }}
+          {{- toYaml $.Values.wildfly.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         {{ if .Values.bypassHttpd.enabled }}
         ports:
