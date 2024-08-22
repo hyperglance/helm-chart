@@ -98,3 +98,21 @@ chmod go+r "$OUTFILE.cert"
 echo "" > $IDPFILE
 chmod 664 $IDPFILE
 chown root:1000 $IDPFILE
+
+spXml=$(sed '1n;s/^/    /' ./sp.xml)
+spCert=$(sed '1n;s/^/    /' ./sp.cert)
+spKey=$(sed '1n;s/^/    /' ./sp.key)
+
+cat >"example-values.yaml" <<EOF
+saml:
+  enabled: false
+  existingSecretName:
+  spXml: |
+    $spXml 
+  idpXml: |
+    # IDP DATA - Use the # to determine correct indentation.
+  spCert: |
+    $spCert
+  spKey: |
+    $spKey
+EOF
