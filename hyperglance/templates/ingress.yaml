@@ -1,10 +1,10 @@
-{{ if .Values.eks.enabled }}
+{{ if and (.Values.fargate.enabled) (not .Values.customIngress.enabled) }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "hyperglance.name" . }}
-  namespace: {{.Values.eks.namespace }}
+  namespace: {{.Values.fargate.namespace }}
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -12,11 +12,11 @@ metadata:
     alb.ingress.kubernetes.io/backend-protocol: "HTTPS"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
     alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: {{.Values.eks.albCertificateArn}}
+    alb.ingress.kubernetes.io/certificate-arn: {{.Values.fargate.albCertificateArn}}
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ .Values.eks.hg_url }}
+    - host: {{ .Values.fargate.hg_url }}
       http:
         paths:
           - path: /
@@ -24,7 +24,14 @@ spec:
             backend:
               service:
                 name: {{ template "hyperglance.name" . }}
-                namespace: {{.Values.eks.namespace }}
+                namespace: {{.Values.fargate.namespace }}
                 port: 
                   number: 443
+{{ end }}
+{{ if .Values.customIngress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: {{ .Values.customIngress.metadata }}
+spec: {{ .Values.customIngress.spec }}
 {{ end }}

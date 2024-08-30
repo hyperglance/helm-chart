@@ -1,4 +1,4 @@
-{{ if not .Values.eks.enabled }}
+{{ if not .Values.fargate.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -49,13 +49,13 @@ spec:
   selector:
     app: {{ template "hyperglance.name" . }}
 {{ end }}
-{{ if .Values.eks.enabled }}
+{{ if .Values.fargate.enabled }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "hyperglance.name" . }}
-  namespace: {{.Values.eks.namespace }}
+  namespace: {{.Values.fargate.namespace }}
   labels:
     app: {{ template "hyperglance.name" . }}
     chart: {{ template "hyperglance.chart" . }}
@@ -64,10 +64,10 @@ metadata:
 spec:
   # CIS Control 5.1.5
   automountServiceAccountToken: false
-  # type: {{ .Values.eks.service.type }}
-  type: {{ .Values.eks.service.type }}
+  # type: {{ .Values.fargate.service.type }}
+  type: {{ .Values.fargate.service.type }}
   ports:
-    - port: {{ .Values.eks.service.https.port }}
+    - port: {{ .Values.fargate.service.https.port }}
       targetPort: 443
       protocol: TCP
       name: https

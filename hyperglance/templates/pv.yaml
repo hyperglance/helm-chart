@@ -1,4 +1,4 @@
-{{ if .Values.eks.enabled }}
+{{ if .Values.fargate.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -11,19 +11,20 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
    capacity:
-      storage: 20Gi
+      storage: {{ .Values.fargate.efs.hyperglance.storageCapacity }}
    volumeMode: Filesystem
    accessModes:
       - ReadWriteOnce
    persistentVolumeReclaimPolicy: Retain
-   storageClassName: efs-sc
+   storageClassName: {{ .Values.fargate.storageClassName }}
    claimRef:
       namespace: {{ .Release.Namespace }}
       name: {{ .Release.Name }}-data
    csi:
       driver: efs.csi.aws.com
-      volumeHandle: {{ printf "%s:%s:%s" $.Values.eks.efs.filesystem_id $.Values.eks.efs.hyperglance.sub_path $.Values.eks.efs.hyperglance.accesspoint_id | quote }}
+      volumeHandle: {{ printf "%s:%s:%s" $.Values.fargate.efs.filesystem_id $.Values.fargate.efs.hyperglance.sub_path $.Values.fargate.efs.hyperglance.accesspoint_id | quote }}
 
+{{ if not .Values.customPostgres.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -36,16 +37,17 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
    capacity:
-      storage: 20Gi
+      storage: {{ .Values.fargate.efs.postgresql.storageCapacity }}
    volumeMode: Filesystem
    accessModes:
       - ReadWriteOnce
    persistentVolumeReclaimPolicy: Retain
-   storageClassName: efs-sc
+   storageClassName: {{ .Values.fargate.storageClassName }}
    claimRef:
       namespace: {{ .Release.Namespace }}
       name: {{ .Release.Name }}-postgresql-data
    csi:
       driver: efs.csi.aws.com
-      volumeHandle: {{ printf "%s:%s:%s" $.Values.eks.efs.filesystem_id $.Values.eks.efs.postgresql.sub_path $.Values.eks.efs.postgresql.accesspoint_id | quote }}
+      volumeHandle: {{ printf "%s:%s:%s" $.Values.fargate.efs.filesystem_id $.Values.fargate.efs.postgresql.sub_path $.Values.fargate.efs.postgresql.accesspoint_id | quote }}
+{{ end }}
 {{ end }}

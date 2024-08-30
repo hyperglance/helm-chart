@@ -18,9 +18,24 @@ spec:
     metadata:
       annotations:
         timestamp: {{ now | date "2006-01-02T15:04:05" }}
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
       labels:
         app: {{ template "hyperglance.name" . }}
     spec:
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- .Values.nodeSelector | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.affinity }}
+      affinity:
+        {{- .Values.affinity | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.tolerations }}
+      tolerations:
+        {{- .Values.tolerations | toYaml | nindent 8 }}
+    {{- end }}
     {{ if .Values.serviceAccount.enabled }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
     {{ else }}
@@ -29,8 +44,12 @@ spec:
     {{ end }}
     {{ if .Values.privateImageRepo.enabled }}
       imagePullSecrets:
+      {{ if .Values.privateImageRepo.existingSecretName }}
+      - name: {{ .Values.privateImageRepo.existingSecretName }}
+      {{ else }}
       - name: {{ .Release.Name }}-repo-secret
       {{ end }}
+    {{ end }}
       initContainers:
       - name: install
         image: {{ .Values.install.image }}:{{ .Values.install.tag }}
@@ -133,11 +152,21 @@ spec:
 
         {{ if .Values.customPostgres.enabled }}
         - secretRef:
+            {{ if .Values.customPostgres.existingSecretName }}
+            name: {{ .Values.customPostgres.existingSecretName }}
+            namespace: {{ .Values.customPostgres.existingSecretNamespace }}
+            {{ else }}
             name: "{{ .Release.Name }}-custom-postgresql-db"
+            {{ end }}
         {{ end }}
         {{ if .Values.proxy.enabled }}
         - secretRef:
+            {{ if .Values.proxy.existingSecretName }}
+            name: {{ .Values.proxy.existingSecretName }}
+            namespace: {{ .Values.proxy.existingSecretNamespace }}
+            {{ else }}
             name: "{{ .Release.Name }}-proxy-settings"
+            {{ end }}
         {{ end }}
 
         volumeMounts:
@@ -182,16 +211,28 @@ spec:
       {{ end }}
       - name: httpd-ssl
         secret:
+          {{ if .Values.httpdSSL.existingSecretName }}
+          secretName: {{ .Values.httpdSSL.existingSecretName }}
+          {{ else }}
           secretName: hyperglance-httpd-ssl
+          {{ end }}
       {{ if .Values.proxy.enabled }}
       - name: proxy-settings
         secret:
+          {{ if .Values.proxy.existingSecretName }}
+          secretName: {{ .Values.proxy.existingSecretName }}
+          {{ else }}
           secretName: hyperglance-proxy-settings
+          {{ end }}
       {{ end }}
       {{ if .Values.saml.enabled }}
       - name: httpd-saml
         secret:
-          secretName: hyperglance-httpd-saml 
+          {{ if .Values.saml.existingSecretName }}
+          secretName: {{ .Values.saml.existingSecretName }}
+          {{ else }}
+          secretName: hyperglance-httpd-saml
+          {{ end }}
       {{ end }}
       - name: hyperglance-data
         persistentVolumeClaim:
@@ -199,7 +240,11 @@ spec:
       {{ if .Values.customPostgres.enabled }}
       - name: custom-postgres-db
         secret:
+        {{ if .Values.customPostgres.existingSecretName }}
+          secretName: {{ .Values.customPostgres.existingSecretName }}
+        {{ else}}
           secretName: hyperglance-custom-postgresql-db
+        {{ end }}
       {{ end }}
       - name: license
         secret:

@@ -1,10 +1,8 @@
-## Generated on: 16-08-2024 12:06:37
-
+## Generated on: 28-08-2024 10:24:52
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
 ## The following parameters configure the Hyperglance application itself.
-
 
 ## @param hgBin Hyperglance initial license key. Please contact Hyperglance support to request a trial key.
 hgBin: Rwo4umGdlTLuVMeq6HgsqbZ1gmRbgk5z4UhCWZN2DM53aQfoQoCI/JdD1dLbEcP/MaoBdR3OaBdz/50mnvfrbhtEDGP5eWAIOmtuyLKaZoQ/ZhRnDESXtMvPznhrqpyrIwoS9uQDfpqC7xkmiof639rJUEh0VtbXbkvMjlKRKb0sKjUhD4c3HqN+tQ+n63PXAjwzk4CKMy6VrnBqUTUtgruRcztA6nVZ78DjJRWHGBheFtVvZEXxrzlzPuiRZpqbqlq8tCBtW4faIFaWTYDFVRmT4VKA2/aceI7GeARWdFg/XFfR3NYJUD3CTnEvuLbuFOs3qkp1ve3zM+uSVYw1aNl8+nDgBSi8yZnK9KQucsdLyQ7LTlDchAYrxbPmc3sZfWr+Ft7vmmM0QJ7ZvvzNtIyRH1ZX6YTiDSLb/OmTQZRREArN+hVUOaDEdcYJ1XecFeONkNKWplzIv4DfFJVtSOAVGop9+lPA5g3hUxQqNhTDA3IladRFwYRIpRgaZOBgP85Tgcyejl9YsG2gI8/cVY21GAQRxvreLkuM3PS8pUJpdOWkDQWPffGts1/aFrzyG1hZp6SiRBR7AfTDDL16abuLnNoNnbM8yB8KFc/oKTBVdtQg2ea+XyVlPNdEYW9Amm6iyM1iz74cULLl4BaFFxgnaNsWett6yM64/zbmJWTnSyqkx+hfnGW1+huhPMv7TnwarvIeKlRg8K4DmbgNWUk6KkaaJzbA3MMw695zQKMIV9detWKG81srdIe24ybCEYmYBoijDxvzQhFUQXsBJ0eU0Zp+VJbZo9TsaCH5rZGAxVhEKuMQQhaNLGJtCKO03ALBwJFCcbWRmGOyO6FhhtRYpiwbJITE/DQTVX1H5+mzmlSDlyCSIauFQTZXe7sm4S+J9z1c7qNaBnWFU3dN/uJCHU41MA/pIFqjKY3Ccb1zJDk/FCDVIdePosDEIqV5Lx/KIr6pi39kkXq+soSIGyilkLqi7JbAEw5tQU7pQ0KfXj9yHPF+LbuLQ4pLLeWb/ZGFxR+NgR8QEdj9X4UFUL5Ad66nqPSUT+RI4VewKVq4ss5HU+Uc/HdsUPI/Yll/s9vl3+gAntIHaBNb8kus9niSf4PAV2bVHPbuNcNmEz5nkrQy0Z1sJfDCKARrhqLTqzXin+cX4GJatSphu1gFHg==
@@ -60,9 +58,11 @@ AWS_COST_CSV_CUSTOMFORMAT:
 ## Hyperglance SSL Parameters
 ## These parameters are stored as secrets within kubernetes.
 
+## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param httpdSSL.certificate Set the tls certificate for the Hyperglance webui.
 ## @param httpdSSL.key Set the tls certificate for the Hyperglance webui.
 httpdSSL:
+  existingSecretName:
   certificate: |
     -----BEGIN CERTIFICATE-----
     MIIDVDCCAjygAwIBAgIJAI/kNmmHcVLKMA0GCSqGSIb3DQEBCwUAMFExFDASBgNV
@@ -119,28 +119,52 @@ httpdSSL:
 ## These parameters are stored as secrets within kubernetes.
 
 ## @param saml.enabled [default: false] Set to true to enable saml sso for Hyperglance.
+## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param saml.spXml https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
 ## @param saml.idpXml https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
 ## @param saml.spCert https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
 ## @param saml.spKey https://support.hyperglance.com/knowledge/saml-support-in-hyperglance
 saml:
   enabled: false
-  spXml: 
-  idpXml: 
-  spCert: 
-  spKey: 
+  existingSecretName:
+  spXml: |
+    # Use the # to help determine where to indent your values to.
+  idpXml: |
+    # Use the # to help determine where to indent your values to.
+  spCert: |
+    # Use the # to help determine where to indent your values to.
+  spKey: |
+    # Use the # to help determine where to indent your values to.
+
+## @section Hyperglance pod annotations
+## This sections allows for adding additional pod annotations to the statefulset
+
+## @param podAnnotations Set your additional pod annotations here as a map of key/value pairs. These will be applied to statefulset.yaml
+podAnnotations: {}
+
+## @section Hyperglance pod scheduling
+## This section allows you to define nodeselector, tolerations and affinity.
+
+## @param nodeSelector Add your nodeSelector values as a key/value map
+## @param affinity Add your affinity values as a key/value map
+## @param tolerations Add your tolerations values as a key/value map
+nodeSelector: {}
+affinity: {}
+tolerations: {}
 
 ## @section Hyperglance Proxy parameters
 ## Hyperglance Proxy Parameters
 ## If your environment requires the use of a proxy, set the following options. These parameters are stored as secrets within kubernetes.
 
 ## @param proxy.enabled [default: false] Set to true to enable
+## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param proxy.host FQDN of your proxy host.
 ## @param proxy.port Proxy port
 ## @param proxy.user Proxy username
 ## @param proxy.pass Proxy Password
 proxy:
   enabled: false
+  existingSecretName:
   host: 
   port: 3128
   user: 
@@ -150,13 +174,15 @@ proxy:
 ## Hyperglance Custom Postgresql server
 ## If your environment requires the use of your own postgresql server, set the following options. These parameters are stored as secrets within kubernetes.
 
-## @param customPostgres.enabled [default: false] Set to true to enable using a custom postgres server. This disabled the bundled postgresql container.
+## @param customPostgres.enabled [default: false] Set to true to enable using a custom postgres server. This disables the bundled postgresql container.
+## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param customPostgres.host Your postgresql host
 ## @param customPostgres.port Your postgresql port
 ## @param customPostgres.user Your postgresql username
 ## @param customPostgres.pass Your postgresql password
 customPostgres:
   enabled: false
+  existingSecretName:
   host: postgresql
   port: 5432
   user: postgres
@@ -337,12 +363,14 @@ servicehttps:
   port: 443
 
 ## @param privateImageRepo.enabled [default: false] Enable the use of a private rep. Generally only used for internal use.
+## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param privateImageRepo.registry [default: https://index.docker.io/v1/]
 ## @param privateImageRepo.username Registry username
 ## @param privateImageRepo.password Registry password
 ## @param privateImageRepo.email registry email
 privateImageRepo:
   enabled: false
+  existingSecretName:
   registry: https://index.docker.io/v1/
   username: 
   password: 
@@ -378,18 +406,18 @@ backend_dev:
 ## @section Hyperglance EKS Fargate
 ## Hyperglance EKS Fargate Specific Parameters
 
-## @param eks.enabled [default: false] Set to true to enable eks fargate deployment. Please check the readme for further information regarding deployment to EKS Fargate.
-## @param eks.namespace EKS Fargate namespace Hyperglance is deployed to.
-## @param eks.hg_url Hyperglance url - Can be mapped to .Values.URL
-## @param eks.service.type [default: LoadBalancer] Service typer
-## @param eks.service.https.port [default: 443] HTTPS port
-## @param eks.efs.filesystem_id EFS Filesystem ID (fs-xxxxx)
-## @param eks.efs.postgresql.accesspoint_id EFS Access Point ID for postgresql data (fsap-xxxx)
-## @param eks.efs.postgresql.sub_path EFS sub path for postgresql data.
-## @param eks.efs.hyperglance.accesspoint_id EFS Access Point ID for Hyperglance data (fsap-xxxx)
-## @param eks.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
-## @param eks.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
-eks:
+## @param fargate.enabled [default: false] Set to true to enable eks fargate deployment. Please check the readme for further information regarding deployment to EKS Fargate.
+## @param fargate.namespace EKS Fargate namespace Hyperglance is deployed to.
+## @param fargate.hg_url Hyperglance url - Can be mapped to .Values.URL
+## @param fargate.service.type [default: LoadBalancer] Service typer
+## @param fargate.service.https.port [default: 443] HTTPS port
+## @param fargate.efs.filesystem_id EFS Filesystem ID (fs-xxxxx)
+## @param fargate.efs.postgresql.accesspoint_id EFS Access Point ID for postgresql data (fsap-xxxx)
+## @param fargate.efs.postgresql.sub_path EFS sub path for postgresql data.
+## @param fargate.efs.hyperglance.accesspoint_id EFS Access Point ID for Hyperglance data (fsap-xxxx)
+## @param fargate.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
+## @param fargate.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
+fargate:
   enabled: false
   namespace: 
   hg_url: 
@@ -398,14 +426,56 @@ eks:
     https:
       port: 443
   efs:
+    storageClassName: efs-sc
     filesystem_id: fs-xxxx
     postgresql:
       accesspoint_id: fsap-xxxx
       sub_path: 
+      storageCapacity: 20Gi
     hyperglance:
       accesspoint_id: fsap-xxxx
       sub_path: 
+      storageCapacity: 20Gi
   albCertificateArn: arn:aws:acm:xxxx
+
+## @section Hyperglance Custom Ingress Parameters
+## This section will override in ingress template. This takes precedence over fargate.enabled, so if both are set to true, custom ingress will take priority.
+## This isn't tested with all ingress providers.
+
+## @param customIngress.enabled [default: false] Set to true to enable setting a custom ingress
+## @param customIngress.metadata Pass in your custom metadata as a map of key/value pairs. See the README for an example.
+## @param customIngress.spec Pass in your custom spec as a map of key/value pairs. See the README for an example.
+customIngress:
+  enabled: false
+  metadata: {}
+  spec: {}
+
+
+## @section Hyperglance Custom LoadBalancer parameters
+## This section will override the loadbalancer template. This takes precedence over fargate.enabled, so if both are set to true, custom load balancer settings will take priority.
+## @param customLoadbalancer.enabled [default: false] Set to true to enable setting custom loadbalancer settings.
+## @param customLoadbalancer.metadata Pass in your custom metadata as a map of key/value pairs.
+## @param customLoadbalancer.spec Pass in your custom spec as a map of key/value pairs.
+customLoadbalancer:
+  enabled: false
+  metadata: {}
+  spec: {}
+
+
+## @section Hyperglance pvc parameters
+## Customise the pvc settings if required.
+
+## @param pvc.storageClassName [default: <EMPTY>] This parameter updates the storageClassName for the pvcs. Please note, this is overridden if fargate.enabled is set to true.
+## @param pvc.annotations [default: {}] Pass in your annotations as a map of key/value pairs.
+## @param pvc.storageRequest.hyperglance [default: 3Gi] Sets the spec.resources.requests.storage parameter for the hyperglance-data pvc.
+## @param pvc.storageRequest.postgres [default: 3Gi] Sets the spec.resources.requests.storage parameter for the hyperglance-postgresql-data pvc. Ignored if customPostgres.enabled is true.
+pvc:
+  storageClassName: 
+  annotations: {}
+  storageRequest: 
+    hyperglance: 3Gi
+    postgres: 3Gi  
+
 
 ## @section Advanced Runtime Properties
 ## Hyperglance Advanced Runtime Properties

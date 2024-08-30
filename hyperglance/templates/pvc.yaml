@@ -7,17 +7,22 @@ metadata:
     chart: {{ template "hyperglance.chart" . }}
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+  {{- if .Values.pvc.annotations }}
   annotations:
-    tilt.dev/down-policy: {{ .Values.tilt_dev_down_policy | default "delete" }}
+    {{- .Values.pvc.annotations | toYaml | nindent 4 }}
+  {{- end }}
 spec:
-{{ if .Values.eks.enabled }}
-  storageClassName: efs-sc
+{{ if .Values.fargate.enabled }}
+  storageClassName: {{ .Values.fargate.storageClassName }}
+{{ end }}
+{{ if and (not .Values.fargate.enabled) ( .Values.pvc.storageClassName) }}
+  storageClassName: {{ .Values.pvc.storageClassName }}
 {{ end }}
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: {{ .Values.pvc.storageRequest.hyperglance }}
 
 {{ if not .Values.customPostgres.enabled }}
 ---
@@ -30,16 +35,18 @@ metadata:
     chart: {{ template "hyperglance.chart" . }}
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+  {{- if .Values.pvc.annotations }}
   annotations:
-    tilt.dev/down-policy: {{ .Values.tilt_dev_down_policy | default "delete" }}
+    {{- .Values.pvc.annotations | toYaml | nindent 4 }}
+  {{- end }}
 spec:
-{{ if .Values.eks.enabled }}
-  storageClassName: efs-sc
+{{ if and (not .Values.fargate.enabled) ( .Values.pvc.storageClassName) }}
+  storageClassName: {{ .Values.pvc.storageClassName }}
 {{ end }}
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: {{ .Values.pvc.storageRequest.postgres }}
 {{ end }}
 

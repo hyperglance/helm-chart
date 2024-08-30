@@ -1,8 +1,14 @@
-<img src="https://hyperglance-public-assets.s3.us-east-2.amazonaws.com/hyperglance.png" alt="Hyperglance Logo" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/hyperglance/helm-chart/main/files/hyperglance_logo_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/hyperglance/helm-chart/main/files/hyperglance_logo_dark.svg">
+  <img alt="Hyperglance logo" src="https://raw.githubusercontent.com/hyperglance/helm-chart/master/main/hyperglance_logo_dark.svg">
+</picture>
 
 # Hyperglance - Helm
 
 This Repository contains a helm chart that can be used to deploy Hyperglance to your Kubernetes cluster.
+
+:information_source: Please note that this chart is still in active development, so checking for any breaking changes prior to upgrading is highly recommneded. These will all be noted in [BREAKING_CHANGES.md](BREAKING_CHANGES.md)
 
 ## Pre-Requisites
 
@@ -66,19 +72,141 @@ Alternatively, you can append the following to the helm install command describe
 helm install hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml
 ```
 
-### Customise the installation
-To customise the Hyperglance deployment, a values.yaml can be created and passed to the helm command. 
+### Customize the installation
+To customize the Hyperglance deployment, a values.yaml can be created and passed to the helm command. 
 
 The minimum configuration options to provide are:
 ```yaml
 ## @param URL Set the URL that Hyperglance can be reached on.
 URL: ''
-
-## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
-RUNNING_IN: ''
 ```
 
 A number of additional configuration parameters are exposed. Please see the values.yaml file for all the available parameters and associated documentation.
+
+### SAML
+
+1. To enable SAML, you first need to generate some files. Within this repo, download the [mellon_create_metadata.sh](https://raw.githubusercontent.com/hyperglance/helm-chart/main/files/mellon_create_metadata.sh) script. A linux system is required to run the script.
+
+2. Make the script executable
+```bash
+chmod +x mellon_create_metadata.sh
+```
+
+3. Ensure you have ```openssl``` installed on your system
+
+4. Run the script, and provide the entity-id-uri (nromally the url for your Hyperglance instance) and saml-endpoint-url (normally the url for your Hyperglance instance with /saml appended). 
+
+5. The script will print out the ACS URL which will be: https://{ip-address-of-your-hyperglance}/saml/postResponse. Make sure that the IP address or DNS name used for SAML endpoint URL is one that your browser will use. SAML works using browser redirects!
+
+6. Use the generated information to configure your idp with the information from the previous step. See our in depth documentation for further information.
+
+- [How to enable SAML](https://support.hyperglance.com/knowledge/saml-support-in-hyperglance)
+- [How to set up SSO with SAML for Azure AD](https://support.hyperglance.com/knowledge/setup-sso-with-saml-for-azure-ad)
+
+7. You should now have 4 files.
+
+- idp.xml
+- sp.cert
+- sp.key
+- sp.xml
+
+8. Update your values.yaml file with the contents of these file, and ensure ```saml.enabled` is set to true. Please note, yaml expects correct indentation. Below is a example of what the saml section of the values.yaml should look like. Use the # as an indicator of where to indent the values to. Where multiple lines are used, the entire block must be at the same indentation level.
+
+```yaml
+saml:
+  enabled: true
+  spXml: |
+    # NOTE: Use the # as an indicator of where to indent your data to.
+  idpXml: |
+    # NOTE: Use the # as an indicator of where to indent your data to.
+  spCert: |
+    # NOTE: Use the # as an indicator of where to indent your data to.
+  spKey: |
+    # NOTE: Use the # as an indicator of where to indent your data to.
+```
+
+9. Apply the updated values.yaml
+
+```bash
+helm upgrade hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml
+```
+
+Alternatively, you can use the ```--set-file``` option with the helm command to pass in your files instead of using the values.yaml.
+
+```bash
+helm upgrade hyperglance hyperglance/hyperglance-helm -n hyperglance -f values.yaml \
+--set saml.enabled=true \
+--set-file saml.spXml=sp.xml \
+--set-file saml.idpXml=idp.xml \
+--set-file saml.spCert=sp.cert \
+--set-file saml.spKey=sp.key
+```
+
+For further information and troubleshooting tips, please see the guide [here](https://support.hyperglance.com/knowledge/saml-support-in-hyperglance).
+
+#### Using existing secrets
+
+The helm chart has support for using manually created secrets. You may use the ```.Values.<PARAMETER>.existingSecretName``` parameter to pass the name of a secret to use.
+
+The chart expects these secrets to be provided in a particular format. Please see /hyperglance/templates/secret.yaml for expected layout. Use of ```existingSecretname``` takes precedence over other values if set.
+
+Below is an example yaml you can use to apply your secrets separately from the main values.yaml. This can be applied by by running ```kubectl apply -f secret.yaml -n <namespace>```. 
+
+Please note, secrets must be in the same namespace as the deployment.
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "custom-httpd-ssl"
+stringData:
+  hyperglance.crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+
+  hyperglance.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    -----END RSA PRIVATE KEY-----
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "custom-httpd-saml"
+stringData:
+  idp.xml: |
+    <?xml version="1.0" encoding="utf-8"?><EntityDescriptor ID=""
+  sp.xml: |
+    <EntityDescriptor entityID=""
+    </EntityDescriptor>
+  sp.cert: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----  
+  sp.key: |
+    -----BEGIN PRIVATE KEY-----
+    -----END PRIVATE KEY-----  
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "custom-postgresql-db-settings"
+stringData:
+  POSTGRESQL_HOST: ""
+  POSTGRESQL_PORT: ""
+  POSTGRESQL_USERNAME: ""
+  POSTGRESQL_PASSWORD: ""
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "custom-proxy-settings"
+stringData:
+  PROXY_HOST: ""
+  PROXY_PORT: ""
+  PROXY_USER: ""
+  PROXY_PASSWORD: ""
+```
 
 
 ## ISTIO
@@ -259,7 +387,29 @@ This deployment assumes you already have the following prerequisites satisfied:
 1. A functioning AWS EKS using Fargate cluster - [AWS guide](https://docs.aws.amazon.com/eks/latest/userguide/fargate-getting-started.html) or [EKSCTL guide](https://eksctl.io/usage/fargate-support/)
 2. EKS ALB controller provisioned and configured - [AWS guide](https://aws.amazon.com/premiumsupport/knowledge-center/eks-alb-ingress-controller-fargate/)
 3. Kubernetes EFS CSIDriver and Storage class deployed to the cluster - 
-   If you don't have this loaded currently, you can apply this using the [csidriver.yaml](kubectl/csidriver.yaml) and [storageclass.yaml](kubectl/storageclass.yaml) files included in this repo - ```kubectl apply -f kubectl/csidriver.yaml -f kubectl/storageclass.yaml```
+   If you don't have this loaded currently, you can apply this using the following csi driver and storageclass examples below. ```kubectl apply -f csidriver.yaml -f storageclass.yaml```
+
+    csidriver.yaml
+    ```yaml
+    ---
+    apiVersion: storage.k8s.io/v1
+    kind: CSIDriver
+    metadata:
+      name: efs.csi.aws.com
+    spec:
+      attachRequired: false
+    ```
+
+    storageclass.yaml
+    ```yaml
+    ---
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1
+    metadata:
+      name: efs-sc
+    provisioner: efs.csi.aws.com
+    volumeBindingMode: Immediate
+    ```
 3. An EFS filesystem configured and accessible from your EKS cluster with [two access points configured](https://docs.aws.amazon.com/efs/latest/ug/create-access-point.html) to be used for persistent volumes - confirming the paths exist on EFS for the access points
 4. A TLS certificate available in [Amazon Certificate Manager](https://aws.amazon.com/certificate-manager/) for use with the Application Load Balancer
 5. An IAM OIDC identity provider is configured for your cluster, to allow service account authentication into AWS - [AWS guide](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html)
@@ -286,7 +436,7 @@ We'll reduce the scope of this trust to only the service account we will create 
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "oidc.eks.<AWS REGION>.amazonaws.com/id/183E80BB183AB94E102232070EDC4969:aud": "sts.amazonaws.com"
+          "oidc.eks.<AWS REGION>.amazonaws.com/id/183E80BB183AB941111111110EDC4969:aud": "sts.amazonaws.com"
         }
       }
     }
@@ -298,7 +448,7 @@ Change the line after string equals to the following, substituting  <namespace>,
 
 ```console
 "StringEquals": {
-          "oidc.eks.<AWS REGION>.amazonaws.com/id/183E80BB183AB94E102232070EDC4969:sub": "system:serviceaccount:<namespace>:<service-account-username>"
+          "oidc.eks.<AWS REGION>.amazonaws.com/id/183E80BB183AB941111111110EDC4969:sub": "system:serviceaccount:<namespace>:<service-account-username>"
 }
 ```
 
@@ -307,45 +457,44 @@ Make a note of the ARN of the role. You will need to populate this value in your
 Populate the values.yaml with the options shown below. 
 
 ```yaml
-###
-# EKS Fargate Specific values
-# If using fargate, the following configuration options are also required.
-##
 ## @param serviceAccount.enabled Enable a AWS service account.
 ## @param serviceAccount.name Service account name
 ## @param serviceAccount.iamRole Service account role ARN
 serviceAccount:
-  enabled: true
+  enabled: false
   name: hyperglance
-  iamRole: ""
+  iamRole: 
 
-## @param eks.enabled [default: false] Set to true to enable eks fargate deployment. Please check the readme for further information regarding deployment to EKS Fargate.
-## @param eks.namespace EKS Fargate namespace Hyperglance is deployed to.
-## @param eks.hg_url Hyperglance url - Can be mapped to .Values.URL
-## @param eks.service.type [default: LoadBalancer] Service typer
-## @param eks.service.https.port [default: 443] HTTPS port
-## @param eks.efs.filesystem_id EFS Filesystem ID (fs-xxxxx)
-## @param eks.efs.postgresql.accesspoint_id EFS Access Point ID for postgresql data (fsap-xxxx)
-## @param eks.efs.postgresql.sub_path EFS sub path for postgresql data.
-## @param eks.efs.hyperglance.accesspoint_id EFS Access Point ID for Hyperglance data (fsap-xxxx)
-## @param eks.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
-## @param eks.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
-eks:
-  enabled: true
-  namespace: ""
-  hg_url: ""
+## @param fargate.enabled [default: false] Set to true to enable eks fargate deployment. Please check the readme for further information regarding deployment to EKS Fargate.
+## @param fargate.namespace EKS Fargate namespace Hyperglance is deployed to.
+## @param fargate.hg_url Hyperglance url - Can be mapped to .Values.URL
+## @param fargate.service.type [default: LoadBalancer] Service typer
+## @param fargate.service.https.port [default: 443] HTTPS port
+## @param fargate.efs.filesystem_id EFS Filesystem ID (fs-xxxxx)
+## @param fargate.efs.postgresql.accesspoint_id EFS Access Point ID for postgresql data (fsap-xxxx)
+## @param fargate.efs.postgresql.sub_path EFS sub path for postgresql data.
+## @param fargate.efs.hyperglance.accesspoint_id EFS Access Point ID for Hyperglance data (fsap-xxxx)
+## @param fargate.efs.hyperglance.sub_path EFS sub path for Hyperglance data.
+## @param fargate.albCertificateArn AWS Loadbalancer Certificate ARN arn:aws:acm:xxxx)
+fargate:
+  enabled: false
+  namespace: 
+  hg_url: 
   service:
     type: LoadBalancer
     https:
       port: 443
   efs:
+    storageClassName: efs-sc
     filesystem_id: fs-xxxx
     postgresql:
       accesspoint_id: fsap-xxxx
-      sub_path: ""
+      sub_path: 
+      storageCapacity: 20Gi
     hyperglance:
       accesspoint_id: fsap-xxxx
-      sub_path: ""
+      sub_path: 
+      storageCapacity: 20Gi
   albCertificateArn: arn:aws:acm:xxxx
 ```
 
@@ -377,7 +526,7 @@ If deployed to EKS, you can use the following command to get the public url for 
 kubectl get svc -n hyperglance
 
 # Output
-NAME               TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)                      AGE
+NAME               TYPE           CLUSTER-IP       EXTERNAL-IP                               PORT(S)                      AGE
 hyperglance-helm   LoadBalancer   redacted   redacted-redacted.us-east-1.elb.amazonaws.com   80:32368/TCP,443:30848/TCP   56s
 ```
 
@@ -395,3 +544,4 @@ Upon login, you will need to go into settings and add your license.
 After that, go ahead and add your first AWS account. You can find a guide [here](https://support.hyperglance.com/knowledge/adding-new-aws-accounts-to-hyperglance#first_account_running_in_aws)
 
 :information_source: You will need to define the Role ARN that you created earlier when adding your AWS account to Hyperglance. This is due to the differences in setup between our Marketplace instances and K8s.
+
