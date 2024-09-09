@@ -1,4 +1,4 @@
-## Generated on: 28-08-2024 10:24:52
+## Generated on: 09-09-2024 09:42:42
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -136,11 +136,15 @@ saml:
   spKey: |
     # Use the # to help determine where to indent your values to.
 
-## @section Hyperglance pod annotations
-## This sections allows for adding additional pod annotations to the statefulset
+## @section Hyperglance Labels and Annotations
+## Hyperglance Labels and Annotations
+## These parameters allow you to add custom Annotations and Labels to statefulset.yaml
 
 ## @param podAnnotations Set your additional pod annotations here as a map of key/value pairs. These will be applied to statefulset.yaml
 podAnnotations: {}
+
+## @param podAnnotations Set your additional pod labels here as a map of key/value pairs. These will be applied to statefulset.yaml
+podLabels: {}
 
 ## @section Hyperglance pod scheduling
 ## This section allows you to define nodeselector, tolerations and affinity.
