@@ -183,16 +183,12 @@ spec:
           subPath: hg.bin
           readOnly: false
 
+        {{ if not .Values.backend_dev.enabled }}
         - name: hyperglance-data
           mountPath: /opt/wildfly/standalone/deployments/hgs.ear/lib/common.jar/email.properties
           subPath: email.properties
           readOnly: false
-
-        # # needs to be rw to allow overwriting via webui
-        # - name: license
-        #   mountPath: /opt/wildfly/standalone/data/hg.bin
-        #   subPath: hg.bin
-        #   readOnly: false
+        {{ end }}          
 
         - name: hyperglance-data
           mountPath: /opt/wildfly/standalone/log
