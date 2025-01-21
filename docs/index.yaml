@@ -2,6 +2,32 @@ apiVersion: v1
 entries:
   hyperglance-helm:
   - apiVersion: v2
+    appVersion: 8.0.21
+    created: "2025-01-21T13:52:06.758037499Z"
+    description: Cloud visualisation, Security and Compliance monitoring system
+    digest: 9ec2998dad4da1a84e4f34900a2e46f9514f593b7a992d105d1bd8143737548f
+    home: https://www.hyperglance.com
+    icon: https://hyperglance-public-assets.s3.us-east-2.amazonaws.com/hyperglance.png
+    keywords:
+    - cloud
+    - aws
+    - azure
+    - k8
+    - kubernetes
+    - visualisation
+    - security
+    - compliance
+    - monitoring
+    - cost
+    - documentation
+    maintainers:
+    - email: itsupport@hyperglance.com
+      name: Hyperglance Ltd
+    name: hyperglance-helm
+    urls:
+    - https://github.com/hyperglance/helm-chart/releases/download/v8.0.21/hyperglance-helm-8.0.21.tgz
+    version: 8.0.21
+  - apiVersion: v2
     appVersion: 8.0.20
     created: "2025-01-16T16:52:10.850455543Z"
     description: Cloud visualisation, Security and Compliance monitoring system
@@ -833,4 +859,4 @@ entries:
     urls:
     - https://github.com/hyperglance/helm-chart/releases/download/v7.4.31/hyperglance-helm-7.4.31.tgz
     version: 7.4.31
-generated: "2025-01-16T16:52:10.848579252Z"
+generated: "2025-01-21T13:52:06.754838427Z"
