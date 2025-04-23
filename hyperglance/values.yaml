@@ -1,4 +1,4 @@
-## Generated on: 09-09-2024 09:42:42
+## Generated on: 17-04-2025 11:01:02
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -61,6 +61,8 @@ AWS_COST_CSV_CUSTOMFORMAT:
 ## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param httpdSSL.certificate Set the tls certificate for the Hyperglance webui.
 ## @param httpdSSL.key Set the tls certificate for the Hyperglance webui.
+## @param httpdSSL.validateClient [default: false] This enables Stig V-21430 mitigation. If set to true, httpdSSL.caBundle must also be set. For more information, see: https://www.stigviewer.com/stig/apache_server_2.4_unix_server/2020-09-25/finding/V-214230 
+## @param httpdSSL.caBundle Set the ca bundle for apache. For more information, see: https://www.stigviewer.com/stig/apache_server_2.4_unix_server/2020-09-25/finding/V-214230 
 httpdSSL:
   existingSecretName:
   certificate: |
@@ -113,6 +115,8 @@ httpdSSL:
     MDdKyiZ79TCgFvFY5p8EZaVOKGmXVw5DOBjdfAJepG/rrgu8uIWi4MoVASqED34U
     Z2R6WaUqf1v+UMjqc404G/w=
     -----END PRIVATE KEY-----
+  validateClient: false    
+  caBundle:
 
 ## @section Hyperglance SAML parameters
 ## Hyperglance SAML Parameters
@@ -200,13 +204,13 @@ customPostgres:
 ## @param postgresql.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param postgresql.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
 ## @param postgresql.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
-## @param postgresql.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
-## @param postgresql.securityContext.allowPrivilegeEscalation  Not currently in use.
-## @param postgresql.securityContext.capabilities.drop Not currently in use.
-## @param postgresql.securityContext.runAsNonRoot Not currently in use.
-## @param postgresql.securityContext.readOnlyRootFilesystem Not currently in use.
-## @param postgresql.securityContext.runAsUser Not currently in use.
-## @param postgresql.securityContext.seccompProfile.type Not currently in use.
+## @param postgresql.enable_security_context [default: true]  Enables the security_context settings.
+## @param postgresql.securityContext.allowPrivilegeEscalation [default: false] Prevents processes within the container from elevating their permissions.
+## @param postgresql.securityContext.capabilities.drop [default: ['ALL']] Drops all additional capabilities.
+## @param postgresql.securityContext.runAsNonRoot [default: true] Main proecess within the container runs as a non root user.
+## @param postgresql.securityContext.readOnlyRootFilesystem [default: true] Root filesystem within the container is read only.
+## @param postgresql.securityContext.runAsUser [default: 222] The user within the container to run processes as.
+## @param postgresql.securityContext.seccompProfile.type [default: RuntimeDefault] Seccomp Profile to use.
 postgresql:
   image:
   tag:
@@ -216,7 +220,7 @@ postgresql:
       cpu:
     limits:
       memory:
-      cpu:
+      cpu: 
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -224,7 +228,7 @@ postgresql:
       drop: ['ALL']
     runAsNonRoot: true
     readOnlyRootFilesystem: true
-    runAsUser: 10001
+    runAsUser: 222
     seccompProfile:
       type: RuntimeDefault
 
@@ -234,13 +238,13 @@ postgresql:
 ## @param wildfly.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param wildfly.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
 ## @param wildfly.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
-## @param wildfly.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
-## @param wildfly.securityContext.allowPrivilegeEscalation Not currently in use.
-## @param wildfly.securityContext.capabilities.drop Not currently in use.
-## @param wildfly.securityContext.runAsNonRoot Not currently in use.
-## @param wildfly.securityContext.readOnlyRootFilesystem Not currently in use.
-## @param wildfly.securityContext.runAsUser Not currently in use.
-## @param wildfly.securityContext.seccompProfile.type Not currently in use.
+## @param wildfly.enable_security_context [default: true]  Enables the security_context settings.
+## @param wildfly.securityContext.allowPrivilegeEscalation [default: false] Prevents processes within the container from elevating their permissions.
+## @param wildfly.securityContext.capabilities.drop [default: ['ALL']] Drops all additional capabilities.
+## @param wildfly.securityContext.runAsNonRoot [default: true] Main proecess within the container runs as a non root user.
+## @param wildfly.securityContext.readOnlyRootFilesystem [default: true] Root filesystem within the container is read only.
+## @param wildfly.securityContext.runAsUser [default: 333] The user within the container to run processes as.
+## @param wildfly.securityContext.seccompProfile.type [default: RuntimeDefault] Seccomp Profile to use.
 wildfly:
   image:
   tag:
@@ -250,7 +254,7 @@ wildfly:
       cpu:
     limits:
       memory:
-      cpu:
+      cpu: 
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -258,7 +262,7 @@ wildfly:
       drop: ['ALL']
     runAsNonRoot: true
     readOnlyRootFilesystem: true
-    runAsUser: 10001
+    runAsUser: 333
     seccompProfile:
       type: RuntimeDefault
 
@@ -268,13 +272,13 @@ wildfly:
 ## @param httpd.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
 ## @param httpd.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
 ## @param httpd.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
-## @param httpd.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
-## @param httpd.securityContext.allowPrivilegeEscalation Not currently in use.
-## @param httpd.securityContext.capabilities.drop Not currently in use.
-## @param httpd.securityContext.runAsNonRoot Not currently in use.
-## @param httpd.securityContext.readOnlyRootFilesystem Not currently in use.
-## @param httpd.securityContext.runAsUser Not currently in use.
-## @param httpd.securityContext.seccompProfile.type Not currently in use.
+## @param httpd.enable_security_context [default: true]  Enables the security_context settings.
+## @param httpd.securityContext.allowPrivilegeEscalation [default: false] Prevents processes within the container from elevating their permissions.
+## @param httpd.securityContext.capabilities.drop [default: ['ALL']] Drops all additional capabilities.
+## @param httpd.securityContext.runAsNonRoot [default: true] Main proecess within the container runs as a non root user.
+## @param httpd.securityContext.readOnlyRootFilesystem [default: true] Root filesystem within the container is read only.
+## @param httpd.securityContext.runAsUser [default: 111] The user within the container to run processes as.
+## @param httpd.securityContext.seccompProfile.type [default: RuntimeDefault] Seccomp Profile to use.
 httpd:
   image:
   tag:
@@ -284,7 +288,7 @@ httpd:
       cpu:
     limits:
       memory:
-      cpu:
+      cpu: 
   enable_security_context: false
   securityContext:
     allowPrivilegeEscalation: false
@@ -292,26 +296,26 @@ httpd:
       drop: ['ALL']
     runAsNonRoot: true
     readOnlyRootFilesystem: true
-    runAsUser: 10001
+    runAsUser: 111
     seccompProfile:
       type: RuntimeDefault
 
-## @param install.image [default: ] Generally left blank as image is defined in statefulset as a default. 
-## @param install.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
-## @param install.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
-## @param install.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
-## @param install.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
-## @param install.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
-## @param install.enable_security_context [default: false] Defined in preparation for rootless container release. Leave as-is for now.
-## @param install.securityContext.allowPrivilegeEscalation Not currently in use.
-## @param install.securityContext.capabilities.drop Not currently in use.
-## @param install.securityContext.runAsNonRoot Not currently in use.
-## @param install.securityContext.readOnlyRootFilesystem Not currently in use.
-## @param install.securityContext.runAsUser Not currently in use.
-## @param install.securityContext.seccompProfile.type Not currently in use.
-install:
-  image: busybox
-  tag: latest
+## @param init_apache.image [default: hyperglance/init]
+## @param init_apache.tag [default: apache]
+## @param init_apache.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_apache.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_apache.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_apache.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_apache.enable_security_context [default: true] 
+## @param init_apache.securityContext.allowPrivilegeEscalation [default: false] 
+## @param init_apache.securityContext.capabilities.drop [default: ALL] 
+## @param init_apache.securityContext.runAsNonRoot [default: true] 
+## @param init_apache.securityContext.readOnlyRootFilesystem [default: true] 
+## @param init_apache.securityContext.runAsUser [default: 111] 
+## @param init_apache.securityContext.seccompProfile.type [default: RuntimeDefault] 
+init_apache:
+  image:
+  tag:
   resources:
     requests:
       memory:
@@ -319,16 +323,85 @@ install:
     limits:
       memory:
       cpu:
-  enable_security_context: false
+  enable_security_context: true
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ['ALL']
     runAsNonRoot: true
     readOnlyRootFilesystem: true
-    runAsUser: 10001
+    runAsUser: 111
     seccompProfile:
       type: RuntimeDefault
+
+## @param init_postgres.image [default: hyperglance/init]
+## @param init_postgres.tag [default: postgres]
+## @param init_postgres.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_postgres.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_postgres.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_postgres.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_postgres.enable_security_context [default: true] 
+## @param init_postgres.securityContext.allowPrivilegeEscalation [default: false] 
+## @param init_postgres.securityContext.capabilities.drop [default: ALL] 
+## @param init_postgres.securityContext.runAsNonRoot [default: true] 
+## @param init_postgres.securityContext.readOnlyRootFilesystem [default: true] 
+## @param init_postgres.securityContext.runAsUser [default: 222] 
+## @param init_postgres.securityContext.seccompProfile.type [default: RuntimeDefault] 
+init_postgres:
+  image:
+  tag:
+  resources:
+    requests:
+      memory:
+      cpu:
+    limits:
+      memory:
+      cpu:
+  enable_security_context: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 222
+    seccompProfile:
+      type: RuntimeDefault
+
+## @param init_wildfly.image [default: hyperglance/init]
+## @param init_wildfly.tag [default: wildfly]
+## @param init_wildfly.resources.requests.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_wildfly.resources.requests.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_wildfly.resources.limits.memory No defaults defined. Exposed to allow customers to define their own.
+## @param init_wildfly.resources.limits.cpu No defaults defined. Exposed to allow customers to define their own.
+## @param init_wildfly.enable_security_context [default: true] 
+## @param init_wildfly.securityContext.allowPrivilegeEscalation [default: false] 
+## @param init_wildfly.securityContext.capabilities.drop [default: ALL] 
+## @param init_wildfly.securityContext.runAsNonRoot [default: true] 
+## @param init_wildfly.securityContext.readOnlyRootFilesystem [default: true] 
+## @param init_wildfly.securityContext.runAsUser [default: 333] 
+## @param init_wildfly.securityContext.seccompProfile.type [default: RuntimeDefault] 
+init_wildfly:
+  image:
+  tag:
+  resources:
+    requests:
+      memory:
+      cpu:
+    limits:
+      memory:
+      cpu:
+  enable_security_context: true
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ['ALL']
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    runAsUser: 333
+    seccompProfile:
+      type: RuntimeDefault      
+
 
 ## @section Other parameters
 
