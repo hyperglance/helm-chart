@@ -1,4 +1,4 @@
-## Generated on: 17-04-2025 11:01:02
+## Generated on: 28-04-2025 11:11:00
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -36,6 +36,9 @@ MAX_HEAPSIZE: '4096m'
 
 ## @param NON_PROXY_HOSTS Hosts that shouldnt be proxied by the included httpd reverse proxy. [default: 'localhost|127.*|[::1]|169.254.169.254']
 NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
+
+## @param WILDFLY_LOG_LEVEL Change the default log level wildfly runs at. [default: 'DEBUG']
+WILDFLY_LOG_LEVEL: 'DEBUG'
 
 ## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode. Set DEBUGGING to true to set to alert only.
 USE_SECMGR:

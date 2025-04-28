@@ -27,5 +27,6 @@ data:
   AWS_COST_CSV_DATEFORMAT: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.DATEFORMAT }}'
   APACHE_DISABLE_HTTPS: '{{ .Values.APACHE_DISABLE_HTTPS }}'
   APACHE_VERIFY_CLIENT: '{{ .Values.httpdSSL.validateClient }}'
+  WILDFLY_LOG_LEVEL: '{{ .Values.WILDFLY_LOG_LEVEL }}'
   {{- include "appendRuntimeParameters" (dict "configmap" .Values.advanced_runtime_properties "enabled" .Values.advanced_runtime_properties.enabled) | nindent 2 }}
 
