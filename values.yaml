@@ -1,4 +1,4 @@
-## Generated on: 28-04-2025 11:11:00
+## Generated on: 12-05-2025 11:38:45
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -223,8 +223,8 @@ postgresql:
       cpu:
     limits:
       memory:
-      cpu: 
-  enable_security_context: false
+      cpu:
+  enable_security_context: true
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
@@ -257,8 +257,8 @@ wildfly:
       cpu:
     limits:
       memory:
-      cpu: 
-  enable_security_context: false
+      cpu:
+  enable_security_context: true
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
@@ -291,8 +291,8 @@ httpd:
       cpu:
     limits:
       memory:
-      cpu: 
-  enable_security_context: false
+      cpu:
+  enable_security_context: true
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
