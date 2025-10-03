@@ -141,7 +141,7 @@ spec:
       {{ end }}
 
       - name: httpd
-        image: {{ .Values.httpd.image | default "hyperglance/httpd-v2" }}:{{ .Values.httpd.tag | default .Chart.AppVersion }}
+        image: {{ .Values.httpd.image | default "hyperglance/httpd-v2" }}:{{ .Values.httpd.tag | default (printf "ubi-%s" .Chart.AppVersion) }}
         {{ if .Values.httpd.enable_security_context }}
         securityContext:
           {{- toYaml $.Values.httpd.securityContext | nindent 10 }}
@@ -163,7 +163,7 @@ spec:
           readOnly: true
 
         - name: httpd-run
-          mountPath: /var/run/apache2
+          mountPath: /etc/httpd/run
 
         {{ if .Values.saml.enabled }}
         - name: httpd-saml
@@ -177,7 +177,7 @@ spec:
           readOnly: false
 
       - name: wildfly
-        image: {{ .Values.wildfly.image | default "hyperglance/wildfly-v2" }}:{{ .Values.wildfly.tag | default .Chart.AppVersion }}
+        image: {{ .Values.wildfly.image | default "hyperglance/wildfly-v2" }}:{{ .Values.wildfly.tag | default (printf "ubi-%s" .Chart.AppVersion) }}
         {{ if .Values.wildfly.enable_security_context }}
         securityContext:
           {{- toYaml $.Values.wildfly.securityContext | nindent 10 }}
