@@ -250,16 +250,18 @@ spec:
         #   subPath: email.properties
         #   readOnly: false
 
-        # # needs to be rw to allow overwriting via webui
-        # - name: license
-        #   mountPath: /opt/wildfly/standalone/data/hg.bin
-        #   subPath: hg.bin
-        #   readOnly: false
-
         - name: hyperglance-data
           mountPath: /opt/wildfly/standalone/log
           subPath: wildfly_logs
           readOnly: false
+
+        - name: diagram-export
+          mountPath: /tmp/diagram-export
+          readOnly: false
+
+        - name: wildfly-cache
+          mountPath: /opt/wildfly/.cache/
+          readOnly: false        
 
       {{ if .Values.frontend_dev.enabled }}
       - name: "{{ .Values.frontend_dev.image}}"
@@ -294,6 +296,11 @@ spec:
         emptyDir: {}                        
       # very temp - remove once we figure out what were doing with /var/lib/hyperglance/passcode
       - name: wildfly-hyperglance
+        emptyDir: {}      
+      - name: diagram-export
+        emptyDir: {}
+
+      - name: wildfly-cache
         emptyDir: {}
 
       - name: httpd-ssl
