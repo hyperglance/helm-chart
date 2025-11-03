@@ -1,24 +1,79 @@
-Please allow up to 5 minutes for the pod to provision and become available on the load balancer
-{{ if .Values.fargate.enabled }}
-1. Get the Application Load Balancer address by running this command:
-
-kubectl get ingress hyperglance
-
-This will provide you with the ALB address, which you can use to access Hyperglance.
-
-The default username and password is admin/admin. Please change this as soon as possible.
-{{ end }}
-
-{{ if not .Values.fargate.enabled }}
-Access the Hyperglance webui using the instance ip on port 443. You can acquire this by running:
-
-If you are running this on a Hyperglance Marketplace AMI, you can use the following to acquire the Hyperglance webui address.
-ip=$(curl -s ipv4.icanhazip.com) && echo https://$(echo $ip)
-
-For EKS based deployments, you can run the following command. Omit the -n hyperglance if you deployed to the default namespace.
-
-kubectl get svc -n hyperglance
-
-The default username and password is admin/admin. Please change this as soon as possible.
-
-{{ end }}
++--------------------------------------------------------------------------------------------------------+
+|    Welcome to                                                                                          |
+|     _   ___   ______  _____ ____   ____ _        _    _   _  ____ _____                                |
+|    | | | \ \ / /  _ \| ____|  _ \ / ___| |      / \  | \ | |/ ___| ____|                               |
+|    | |_| |\ V /| |_) |  _| | |_) | |  _| |     / _ \ |  \| | |   |  _|                                 |
+|    |  _  | | | |  __/| |___|  _ <| |_| | |___ / ___ \| |\  | |___| |___                                |
+|    |_| |_| |_| |_|   |_____|_| \_\\____|_____/_/   \_\_| \_|\____|_____|                               |
+{{- if eq (lower (default "" .Values.RUNNING_IN)) "" }}
+|                                                                                                        |
+|    =======================                                                                             |
+|    Hyperglance Helm Chart.                                                                             |
+|    =======================                                                                             |
+|                                                                                                        |
+|    Listening on port 443 (HTTPS).                                                                      |
+|                                                                                                        |
+|    HOW TO CONNECT                                                                                      |
+    {{- if .Values.fargate.enabled }}
+|        1. Get the ingress IP of the pod by running:                                                    |
+|                                                                                                        |
+|            kubectl get ingress hyperglance -n hyperglance                                              |
+|                                                                                                        |
+|            Tip: Omit the '-n hyperglance' if you deployed into the default namespace                   |
+|                                                                                                        |
+|        2. Visit https://<IngressIP> in your browser.                                                   |
+    {{- else }}
+|        1. Get the external IP of the pod by running:                                                   |
+|                                                                                                        |
+|            kubectl get svc -n hyperglance                                                              |
+|                                                                                                        |
+|            Tip: Omit the '-n hyperglance' if you deployed into the default namespace                   |
+|                                                                                                        |
+|        2. Visit https://<ExternalIP> in your browser.                                                  |
+    {{- end }}
+|                                                                                                        |
+|    Note: Please allow up to 5 minutes for the Hyperglance WebUI to become available.                   |
+|                                                                                                        |
+|    DEFAULT LOGIN CREDENTIALS                                                                           |
+|        Default User: admin                                                                             |
+|        Default Password: admin                                                                         |
+|                                                                                                        |
+{{- else }}
+     {{- if eq (lower (default "" .Values.RUNNING_IN)) "sandbox" }}
+|                                                                                                        |
+|    ====================                                                                                |
+|    Hyperglance Sandbox.                                                                                |
+|    ====================                                                                                |
+|                                                                                                        |
+|    Listening on port 443 (HTTPS).                                                                      |
+|                                                                                                        |
+|    HOW TO CONNECT                                                                                      |
+|        Visit https://localhost in your browser                                                         |
+|        Default User: admin                                                                             |
+|        Default Password: admin                                                                         |
+|                                                                                                        |
+|    Please allow up to 5 minutes for the Hyperglance WebUI to become available.                         |
+|                                                                                                        |
+    {{- else }}
+|                                                                                                        |
+|    ===================================                                                                 |
+|    Hyperglance Marketplace Deployment.                                                                 |
+|    ===================================                                                                 |
+|                                                                                                        |
+|    Listening on port 443 (HTTPS).                                                                      |
+|                                                                                                        |
+|    HOW TO CONNECT                                                                                      |
+|        1. Get the Public IP of this VM                                                                 |
+|        2. Visit https://<PublicIP> in your browser                                                     |
+|                                                                                                        |
+|        Note: Please allow up to 5 minutes for the Hyperglance WebUI to become available.               |
+|                                                                                                        |
+|    DEFAULT LOGIN CREDENTIALS                                                                           |
+|        Default User: admin                                                                             |
+|        Default Password for AWS: The InstanceID of this instance.                                      |
+|        Default Password for Azure: The 'Computer Name' of this VM.                                     |
+|        Default Password for GCP: The instance-id of the VM instance e.g.  2531258160337713584          |
+|                                                                                                        |
+    {{- end}}
+{{- end }}    
++--------------------------------------------------------------------------------------------------------+

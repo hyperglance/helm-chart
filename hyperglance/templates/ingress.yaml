@@ -6,7 +6,7 @@ metadata:
   name: {{ template "hyperglance.name" . }}
   namespace: {{.Values.fargate.namespace }}
   annotations:
-    kubernetes.io/ingress.class: alb
+    # kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/backend-protocol: "HTTPS"
@@ -24,7 +24,7 @@ spec:
             backend:
               service:
                 name: {{ template "hyperglance.name" . }}
-                namespace: {{.Values.fargate.namespace }}
+                # namespace: {{.Values.fargate.namespace }}
                 port: 
                   number: 443
 {{ end }}

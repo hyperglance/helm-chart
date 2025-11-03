@@ -1,4 +1,4 @@
-## Generated on: 12-05-2025 11:38:45
+## Generated on: 23-10-2025 09:32:15
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -119,7 +119,7 @@ httpdSSL:
     Z2R6WaUqf1v+UMjqc404G/w=
     -----END PRIVATE KEY-----
   validateClient: false    
-  caBundle:
+  caBundle: 
 
 ## @section Hyperglance SAML parameters
 ## Hyperglance SAML Parameters

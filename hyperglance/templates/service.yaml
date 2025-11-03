@@ -54,7 +54,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "hyperglance.name" . }}
+  # name: {{ template "hyperglance.name" . }}
+  name: {{ .Release.Name }}
   namespace: {{.Values.fargate.namespace }}
   labels:
     app: {{ template "hyperglance.name" . }}
@@ -62,8 +63,6 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
-  # CIS Control 5.1.5
-  automountServiceAccountToken: false
   # type: {{ .Values.fargate.service.type }}
   type: {{ .Values.fargate.service.type }}
   ports:
@@ -72,5 +71,6 @@ spec:
       protocol: TCP
       name: https
   selector:
-    app: {{ template "hyperglance.name" . }}
+    # app: {{ template "hyperglance.name" . }}
+    app: {{ .Release.Name }}
 {{ end }}
