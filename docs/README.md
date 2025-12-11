@@ -14,6 +14,7 @@
    * [Provenance (optional)](#provenance-optional)
    * [Accessing Hyperglance WebUI & Login](#accessing-hyperglance-webui-login)
    * [Customize The Installation](#customize-the-installation)
+- [NetworkPolicy](#networkpolicy)
 - [Use With EKS](#use-with-eks)
    * [Create An IAM Role And Policy for Hyperglance](#create-an-iam-role-and-policy-for-hyperglance)
    * [EKS With Fargate](#eks-with-fargate)
@@ -114,6 +115,22 @@ URL: ''
 ```
 
 A number of additional configuration parameters are exposed. Please see the `values.yaml` file for all the available parameters and associated documentation.
+
+## NetworkPolicy
+The chart can create a NetworkPolicy to lock down traffic to the Hyperglance pods.
+
+- Enable: set `networkPolicy.enabled=true`.
+- Defaults: ingress allows HTTP/HTTPS from any pod in the namespace; egress allows DNS (TCP/UDP 53) plus outbound HTTP/HTTPS.
+- Tighten ingress: add `namespaceSelector` or more specific `podSelector` entries under `networkPolicy.ingress`.
+- Extend egress: add additional `to`/`ports` entries under `networkPolicy.egress` if you need other destinations (e.g., SMTP).
+
+Example:
+```bash
+helm upgrade --install hyperglance hyperglance/hyperglance-helm \
+  -n hyperglance --create-namespace \
+  --set networkPolicy.enabled=true \
+  --set networkPolicy.ingress[0].from[0].namespaceSelector.matchLabels.'kubernetes\.io/metadata\.name'=hyperglance
+```
 
 # Use With EKS
 ## Create An IAM Role And Policy for Hyperglance

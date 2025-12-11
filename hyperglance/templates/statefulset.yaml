@@ -138,6 +138,18 @@ spec:
         ports:
         - containerPort: 5432
         {{ end }}
+        {{- with .Values.postgresql.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.postgresql.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.postgresql.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       {{ end }}
 
       - name: httpd
@@ -175,6 +187,18 @@ spec:
           mountPath: /var/log/httpd
           subPath: httpd_logs
           readOnly: false
+        {{- with .Values.httpd.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.httpd.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.httpd.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
 
       - name: wildfly
         image: {{ .Values.wildfly.image | default "hyperglance/wildfly-v2" }}:{{ .Values.wildfly.tag | default (printf "ubi-%s" .Chart.AppVersion) }}
@@ -262,6 +286,18 @@ spec:
         - name: wildfly-cache
           mountPath: /opt/wildfly/.cache/
           readOnly: false        
+        {{- with .Values.wildfly.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.wildfly.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.wildfly.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
 
       {{ if .Values.frontend_dev.enabled }}
       - name: "{{ .Values.frontend_dev.image}}"
