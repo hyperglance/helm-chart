@@ -1,4 +1,4 @@
-## Generated on: 05-12-2025 09:39:21
+## Generated on: 09-02-2026 15:40:21
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -7,55 +7,57 @@
 ## @param hgBin Hyperglance initial license key. Please contact Hyperglance support to request a trial key.
 hgBin: Rwo4umGdlTLuVMeq6HgsqbZ1gmRbgk5z4UhCWZN2DM53aQfoQoCI/JdD1dLbEcP/MaoBdR3OaBdz/50mnvfrbhtEDGP5eWAIOmtuyLKaZoQ/ZhRnDESXtMvPznhrqpyrIwoS9uQDfpqC7xkmiof639rJUEh0VtbXbkvMjlKRKb0sKjUhD4c3HqN+tQ+n63PXAjwzk4CKMy6VrnBqUTUtgruRcztA6nVZ78DjJRWHGBheFtVvZEXxrzlzPuiRZpqbqlq8tCBtW4faIFaWTYDFVRmT4VKA2/aceI7GeARWdFg/XFfR3NYJUD3CTnEvuLbuFOs3qkp1ve3zM+uSVYw1aNl8+nDgBSi8yZnK9KQucsdLyQ7LTlDchAYrxbPmc3sZfWr+Ft7vmmM0QJ7ZvvzNtIyRH1ZX6YTiDSLb/OmTQZRREArN+hVUOaDEdcYJ1XecFeONkNKWplzIv4DfFJVtSOAVGop9+lPA5g3hUxQqNhTDA3IladRFwYRIpRgaZOBgP85Tgcyejl9YsG2gI8/cVY21GAQRxvreLkuM3PS8pUJpdOWkDQWPffGts1/aFrzyG1hZp6SiRBR7AfTDDL16abuLnNoNnbM8yB8KFc/oKTBVdtQg2ea+XyVlPNdEYW9Amm6iyM1iz74cULLl4BaFFxgnaNsWett6yM64/zbmJWTnSyqkx+hfnGW1+huhPMv7TnwarvIeKlRg8K4DmbgNWUk6KkaaJzbA3MMw695zQKMIV9detWKG81srdIe24ybCEYmYBoijDxvzQhFUQXsBJ0eU0Zp+VJbZo9TsaCH5rZGAxVhEKuMQQhaNLGJtCKO03ALBwJFCcbWRmGOyO6FhhtRYpiwbJITE/DQTVX1H5+mzmlSDlyCSIauFQTZXe7sm4S+J9z1c7qNaBnWFU3dN/uJCHU41MA/pIFqjKY3Ccb1zJDk/FCDVIdePosDEIqV5Lx/KIr6pi39kkXq+soSIGyilkLqi7JbAEw5tQU7pQ0KfXj9yHPF+LbuLQ4pLLeWb/ZGFxR+NgR8QEdj9X4UFUL5Ad66nqPSUT+RI4VewKVq4ss5HU+Uc/HdsUPI/Yll/s9vl3+gAntIHaBNb8kus9niSf4PAV2bVHPbuNcNmEz5nkrQy0Z1sJfDCKARrhqLTqzXin+cX4GJatSphu1gFHg==
 
-## @param URL Set the URL that Hyperglance can be reached on.
-URL: 
+## @param hyperglanceEnvVars All key value pairs are added to the config map to be available as env vars within the Hyperglance pod.
+hyperglanceEnvVars:
+  ## @param URL Set the URL that Hyperglance can be reached on.
+  URL: 
 
-## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
-RUNNING_IN: 
+  ## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
+  RUNNING_IN: 
 
-## @param AWS_COST_BUCKET https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
-AWS_COST_BUCKET: 
+  ## @param AWS_COST_BUCKET https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
+  AWS_COST_BUCKET: 
 
-## @param AWS_COST_MARKETPLACE https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
-AWS_COST_MARKETPLACE: 
+  ## @param AWS_COST_MARKETPLACE https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
+  AWS_COST_MARKETPLACE: 
 
-## @param AWS_ENABLE_ACCESS_KEYS Set to true to enable the use of aws access key/secrets in the hyperglance ui.
-AWS_ENABLE_ACCESS_KEYS: 
+  ## @param AWS_ENABLE_ACCESS_KEYS Set to true to enable the use of aws access key/secrets in the hyperglance ui.
+  AWS_ENABLE_ACCESS_KEYS: 
 
-## @param AZURE_COST_STORAGEACCOUNT https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
-AZURE_COST_STORAGEACCOUNT: 
+  ## @param AZURE_COST_STORAGEACCOUNT https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
+  AZURE_COST_STORAGEACCOUNT: 
 
-## @param AZURE_COST_CONTAINER https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
-AZURE_COST_CONTAINER: 
+  ## @param AZURE_COST_CONTAINER https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
+  AZURE_COST_CONTAINER: 
 
-## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
-KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
+  ## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
+  KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
 
-## @param MAX_HEAPSIZE Legacy option that will be deprecated. Sets wildfly's Java heapsize. This option should remain unchanged unless told otherwise by your Hyperglance representative.
-MAX_HEAPSIZE: '4096m'
+  ## @param MAX_HEAPSIZE Legacy option that will be deprecated. Sets wildfly's Java heapsize. This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  MAX_HEAPSIZE: '4096m'
 
-## @param NON_PROXY_HOSTS Hosts that shouldnt be proxied by the included httpd reverse proxy. [default: 'localhost|127.*|[::1]|169.254.169.254']
-NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
+  ## @param NON_PROXY_HOSTS Hosts that shouldnt be proxied by the included httpd reverse proxy. [default: 'localhost|127.*|[::1]|169.254.169.254']
+  NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
 
-## @param WILDFLY_LOG_LEVEL Change the default log level wildfly runs at. [default: 'DEBUG']
-WILDFLY_LOG_LEVEL: 'DEBUG'
+  ## @param WILDFLY_LOG_LEVEL Change the default log level wildfly runs at. [default: 'DEBUG']
+  WILDFLY_LOG_LEVEL: 'DEBUG'
 
-## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode. Set DEBUGGING to true to set to alert only.
-USE_SECMGR:
-  ENABLED: false
-  DEBUGGING: false
+  ## @param USE_SECMGR [default: false] Set to true to enable secmgr within wildfly in strict mode.
+  ## @param USE_SECMGR_DEBUGGING [default: false] Sets secmgr to run in debug mode only.
+  USE_SECMGR: false
+  USE_SECMGR_DEBUGGING: false
 
-## @param AWS_COST_CSV_CUSTOMFORMAT.ENABLED This option should remain unchanged unless told otherwise by your Hyperglance representative.
-## @param AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_REGEX This option should remain unchanged unless told otherwise by your Hyperglance representative.
-## @param AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_PATTERN This option should remain unchanged unless told otherwise by your Hyperglance representative.
-## @param AWS_COST_CSV_CUSTOMFORMAT.DATEFORMAT This option should remain unchanged unless told otherwise by your Hyperglance representative.
-## @param AWS_COST_CSV_CUSTOMFORMAT.USAGE_ACCOUNTS This option should remain unchanged unless told otherwise by your Hyperglance representative.
-AWS_COST_CSV_CUSTOMFORMAT:
-  ENABLED: false
-  FILENAME_DATE_REGEX: 
-  FILENAME_DATE_PATTERN: 
-  DATEFORMAT: 
-  USAGE_ACCOUNTS: 
+  ## @param AWS_COST_CSV_CUSTOMFORMAT_ENABLED This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  ## @param AWS_COST_CSV_FILENAME_DATE_REGEX This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  ## @param AWS_COST_CSV_FILENAME_DATE_PATTERN This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  ## @param AWS_COST_CSV_DATEFORMAT This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  ## @param AWS_COST_USAGE_ACCOUNTS This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  ## @param AWS_COST_BUCKET This option should remain unchanged unless told otherwise by your Hyperglance representative.
+  AWS_COST_CSV_CUSTOMFORMAT_ENABLED:
+  AWS_COST_CSV_FILENAME_DATE_REGEX: 
+  AWS_COST_CSV_FILENAME_DATE_PATTERN: 
+  AWS_COST_CSV_DATEFORMAT: 
+  AWS_COST_USAGE_ACCOUNTS:  
 
 ## @section Hyperglance Apache SSL parameters
 ## Hyperglance SSL Parameters
@@ -266,38 +268,6 @@ postgresql:
     runAsUser: 222
     seccompProfile:
       type: RuntimeDefault
-  readinessProbe:
-    exec:
-      command:
-        - /usr/bin/pg_isready
-        - -U
-        - postgres
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 6
-  livenessProbe:
-    exec:
-      command:
-        - /usr/bin/pg_isready
-        - -U
-        - postgres
-    initialDelaySeconds: 60
-    periodSeconds: 20
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 3
-  startupProbe:
-    exec:
-      command:
-        - /usr/bin/pg_isready
-        - -U
-        - postgres
-    failureThreshold: 18
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
 
 ## @param wildfly.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param wildfly.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
@@ -332,36 +302,6 @@ wildfly:
     runAsUser: 333
     seccompProfile:
       type: RuntimeDefault
-  readinessProbe:
-    httpGet:
-      path: /
-      port: 8080
-      scheme: HTTP
-    initialDelaySeconds: 40
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 6
-  livenessProbe:
-    httpGet:
-      path: /
-      port: 8080
-      scheme: HTTP
-    initialDelaySeconds: 90
-    periodSeconds: 20
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 3
-  startupProbe:
-    httpGet:
-      path: /
-      port: 8080
-      scheme: HTTP
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 10
-    successThreshold: 1
-    failureThreshold: 60
 
 ## @param httpd.image [default: ] Generally left blank as image is defined in statefulset as a default. 
 ## @param httpd.tag [default: ] Generally left blank as tag is defined during helm chart release time. 
@@ -396,36 +336,6 @@ httpd:
     runAsUser: 111
     seccompProfile:
       type: RuntimeDefault
-  readinessProbe:
-    httpGet:
-      path: /
-      port: 443
-      scheme: HTTPS
-    initialDelaySeconds: 20
-    periodSeconds: 10
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 6
-  livenessProbe:
-    httpGet:
-      path: /
-      port: 443
-      scheme: HTTPS
-    initialDelaySeconds: 60
-    periodSeconds: 20
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 3
-  startupProbe:
-    httpGet:
-      path: /
-      port: 443
-      scheme: HTTPS
-    initialDelaySeconds: 60
-    periodSeconds: 10
-    timeoutSeconds: 10
-    successThreshold: 1
-    failureThreshold: 60
 
 ## @param init_apache.image [default: hyperglance/init]
 ## @param init_apache.tag [default: apache]

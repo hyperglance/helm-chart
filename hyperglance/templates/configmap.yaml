@@ -8,25 +8,11 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 data:
-  SAML_ENABLED: '{{ .Values.saml.enabled }}'
-  NON_PROXY_HOSTS: '{{ .Values.NON_PROXY_HOSTS }}'
-  AWS_COST_BUCKET: '{{ .Values.AWS_COST_BUCKET }}'
-  AWS_COST_MARKETPLACE: '{{ .Values.AWS_COST_MARKETPLACE }}'
-  AWS_ENABLE_ACCESS_KEYS: '{{ .Values.AWS_ENABLE_ACCESS_KEYS }}'
-  MAX_HEAPSIZE: '{{ .Values.MAX_HEAPSIZE }}'
-  RUNNING_IN: '{{ .Values.RUNNING_IN }}'
-  AZURE_COST_STORAGEACCOUNT: '{{ .Values.AZURE_COST_STORAGEACCOUNT }}'
-  AZURE_COST_CONTAINER: '{{ .Values.AZURE_COST_CONTAINER }}'
-  URL: '{{ .Values.URL }}'
-  USE_SECMGR: '{{ .Values.USE_SECMGR.ENABLED }}'
-  USE_SECMGR_DEBUGGING: '{{ .Values.USE_SECMGR.DEBUGGING }}'
-  AWS_COST_USAGE_ACCOUNTS: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.USAGE_ACCOUNTS }}'
-  AWS_COST_CSV_CUSTOMFORMAT_ENABLED: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.ENABLED }}'
-  AWS_COST_CSV_FILENAME_DATE_REGEX: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_REGEX }}'
-  AWS_COST_CSV_FILENAME_DATE_PATTERN: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.FILENAME_DATE_PATTERN }}'
-  AWS_COST_CSV_DATEFORMAT: '{{ .Values.AWS_COST_CSV_CUSTOMFORMAT.DATEFORMAT }}'
-  APACHE_DISABLE_HTTPS: '{{ .Values.APACHE_DISABLE_HTTPS }}'
+  DEPLOYMENT_TARGET: 'k8s'
   APACHE_VERIFY_CLIENT: '{{ .Values.httpdSSL.validateClient }}'
-  WILDFLY_LOG_LEVEL: '{{ .Values.WILDFLY_LOG_LEVEL }}'
-  {{- include "appendRuntimeParameters" (dict "configmap" .Values.advanced_runtime_properties "enabled" .Values.advanced_runtime_properties.enabled) | nindent 2 }}
+  SAML_ENABLED: '{{ .Values.saml.enabled }}'
+{{- range $key, $value := .Values.hyperglanceEnvVars }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- include "appendRuntimeParameters" (dict "configmap" .Values.advanced_runtime_properties "enabled" .Values.advanced_runtime_properties.enabled) | nindent 2 }}
 
