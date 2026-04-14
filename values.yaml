@@ -1,4 +1,4 @@
-## Generated on: 09-02-2026 15:40:21
+## Generated on: 02-04-2026 13:00:09
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -32,9 +32,6 @@ hyperglanceEnvVars:
 
   ## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
   KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
-
-  ## @param MAX_HEAPSIZE Legacy option that will be deprecated. Sets wildfly's Java heapsize. This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  MAX_HEAPSIZE: '4096m'
 
   ## @param NON_PROXY_HOSTS Hosts that shouldnt be proxied by the included httpd reverse proxy. [default: 'localhost|127.*|[::1]|169.254.169.254']
   NON_PROXY_HOSTS: 'localhost|127.*|[::1]|169.254.169.254'
