@@ -52,7 +52,14 @@ spec:
       {{ else }}
       - name: {{ .Release.Name }}-repo-secret
       {{ end }}
-    {{ end }}   
+    {{ end }}
+      securityContext:
+        {{- with .Values.podSecurityContext }}
+        {{- toYaml . | nindent 8 }}
+        {{- else }}
+        fsGroup: 9999
+        fsGroupChangePolicy: OnRootMismatch
+        {{- end }}
       initContainers:
       - name: init-apache
         image: {{ .Values.init_apache.image | default "hyperglance/init" }}:{{ .Values.init_apache.tag | default "apache" }}
