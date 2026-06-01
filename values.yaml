@@ -1,4 +1,4 @@
-## Generated on: 23-04-2026 14:07:24
+## Generated on: 21-05-2026 09:41:54
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -55,6 +55,9 @@ hyperglanceEnvVars:
   AWS_COST_CSV_FILENAME_DATE_PATTERN: 
   AWS_COST_CSV_DATEFORMAT: 
   AWS_COST_USAGE_ACCOUNTS:  
+
+  ## @param [default: false] Sets apache to run over port 80. Useful if you wish to terminate ssl yourself.
+  APACHE_DISABLE_HTTPS: false
 
 ## @section Hyperglance Apache SSL parameters
 ## Hyperglance SSL Parameters
@@ -467,9 +470,6 @@ bypassHttpd:
   enabled: false
   wildfly_http_port: 8080
   wildfly_https_port: 8443
-
-## @param [default: false] Sets apache to run over port 80. Useful if you wish to terminate ssl yourself.
-APACHE_DISABLE_HTTPS: false
 
 ## @param servicehttp.port
 servicehttp:

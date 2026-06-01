@@ -532,7 +532,7 @@ Please note, the default destination for the hyperglance pod, when running in th
 
 # Single-Sign-On (SAML)
 
-1. To enable SAML, you first need to generate some files. Within this repo, download the [mellon_create_metadata.sh](https://raw.githubusercontent.com/hyperglance/helm-chart/main/files/mellon_create_metadata.sh) script. A linux system is required to run the script.
+1. To enable SAML, you first need to generate some files. Within this repo, download the [mellon_create_metadata.sh](https://raw.githubusercontent.com/hyperglance/helm-chart/main/files/mellon_create_metadata.sh) script. A linux system is required to run the script. Alternatively, if you have the Hyperglance CLI or the [Hyperglance Sandbox](https://hub.docker.com/r/hyperglance/sandbox), you can follow the instructions for using that [here](https://support.hyperglance.com/knowledge/saml-support-in-hyperglance).
 
 2. Make the script executable
 ```bash
@@ -556,7 +556,7 @@ chmod +x mellon_create_metadata.sh
 
 7. You should now have 4 files.
 
-- idp.xml
+- idp.xml (This file will be empty and needs populating with the data from your Identity Provider.)
 - sp.cert
 - sp.key
 - sp.xml
@@ -603,7 +603,9 @@ The chart expects these secrets to be provided in a particular format. Please se
 
 Below is an example yaml you can use to apply your secrets separately from the main values.yaml. This can be applied by by running `kubectl apply -f secret.yaml -n <namespace>`. 
 
-Please note, secrets must be in the same namespace as the deployment.
+**Please note:** 
+- Secrets must be in the same namespace as the deployment.
+- Secret stringData **must** use the keys shown below, for example, the ssl stringData must use the keys `hyperglance.crt` and `hyperglance.key`.
 
 ```yaml
 ---
