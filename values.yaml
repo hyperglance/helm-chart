@@ -1,4 +1,4 @@
-## Generated on: 21-05-2026 09:41:54
+## Generated on: 02-06-2026 12:24:01
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -9,26 +9,14 @@ hgBin: Rwo4umGdlTLuVMeq6HgsqbZ1gmRbgk5z4UhCWZN2DM53aQfoQoCI/JdD1dLbEcP/MaoBdR3Oa
 
 ## @param hyperglanceEnvVars All key value pairs are added to the config map to be available as env vars within the Hyperglance pod.
 hyperglanceEnvVars:
-  ## @param URL Set the URL that Hyperglance can be reached on.
+  ## @param URL Set the URL that Hyperglance can be reached on. e.g. https://hyperglance.<yourcompany>.com
   URL: 
 
-  ## @param RUNNING_IN Set to AWS to enable K8 service account and IAM role assumption in Hyperglance.
+  ## @param RUNNING_IN Set to "AWS" to enable IAM role assumption.
   RUNNING_IN: 
 
-  ## @param AWS_COST_BUCKET https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
-  AWS_COST_BUCKET: 
-
-  ## @param AWS_COST_MARKETPLACE https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-aws
-  AWS_COST_MARKETPLACE: 
-
-  ## @param AWS_ENABLE_ACCESS_KEYS Set to true to enable the use of aws access key/secrets in the hyperglance ui.
-  AWS_ENABLE_ACCESS_KEYS: 
-
-  ## @param AZURE_COST_STORAGEACCOUNT https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
-  AZURE_COST_STORAGEACCOUNT: 
-
-  ## @param AZURE_COST_CONTAINER https://support.hyperglance.com/knowledge/how-to-enable-cost-collection-in-azure
-  AZURE_COST_CONTAINER: 
+  ## @param AWS_ENABLE_ACCESS_KEYS Set to true to enable the use of aws access key/secrets in the Hyperglance UI.
+  AWS_ENABLE_ACCESS_KEYS: true
 
   ## @param KUBE_SKIP_NAMESPACES Namespaces within Kubernetes clusters that Hyperglance should skip ingesting.
   KUBE_SKIP_NAMESPACES: 'kube-,openshift-'
@@ -43,18 +31,6 @@ hyperglanceEnvVars:
   ## @param USE_SECMGR_DEBUGGING [default: false] Sets secmgr to run in debug mode only.
   USE_SECMGR: false
   USE_SECMGR_DEBUGGING: false
-
-  ## @param AWS_COST_CSV_CUSTOMFORMAT_ENABLED This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  ## @param AWS_COST_CSV_FILENAME_DATE_REGEX This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  ## @param AWS_COST_CSV_FILENAME_DATE_PATTERN This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  ## @param AWS_COST_CSV_DATEFORMAT This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  ## @param AWS_COST_USAGE_ACCOUNTS This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  ## @param AWS_COST_BUCKET This option should remain unchanged unless told otherwise by your Hyperglance representative.
-  AWS_COST_CSV_CUSTOMFORMAT_ENABLED:
-  AWS_COST_CSV_FILENAME_DATE_REGEX: 
-  AWS_COST_CSV_FILENAME_DATE_PATTERN: 
-  AWS_COST_CSV_DATEFORMAT: 
-  AWS_COST_USAGE_ACCOUNTS:  
 
   ## @param [default: false] Sets apache to run over port 80. Useful if you wish to terminate ssl yourself.
   APACHE_DISABLE_HTTPS: false

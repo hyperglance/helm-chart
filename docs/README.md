@@ -101,9 +101,36 @@ Password: admin
 
 It is highly recommended you [change the password](https://support.hyperglance.com/knowledge/how-to-change-hyperglance-login-password) once you login.
 
+
 Upon login, you will need to go into settings and add your license.
 After that, go ahead and add your first cloud provider account or kubernetes cluster. You can find guides for all our supported cloud providers [here](https://support.hyperglance.com/knowledge/setup-configuration).
 
+## Managing Users When Running The Helm Chart On Your Own Cluster
+
+To manage users when Hyperglance is running on your own cluster, you will need to use the Hyperglance CLI.
+
+To create a new user:
+
+1. Acquire a kubeconfig file for your cluster. This can be scoped down to just the Hyperglance pod, but will require access to exec into the containers.
+2. Run the following command, replacing `path/to/your/kubeconfig` with the correct path to your kubeconfig file.
+
+```
+docker run --rm -it -v path/to/your/kubeconfig:/var/lib/data/.kube/config:ro hyperglance/updatetool:latest
+```
+
+3. Ensure your cluster is reachable from where ever you're running the above command from. The `hyperglance/updatetool:latest` container includes kubectl, so you can run `kubectl get pods` to verify connecivity.
+
+4. [optional] Set `HG_KUBECTL_SKIP_TLS_VERIFICATION=true` in `/usr/local/bin/.hgenv` in the container if your kubeconfig cert isn't valid over the public ip of where the cluster is running.
+
+5. [optional] Set `HG_NAMESPACE` in `/usr/local/bin/.hgenv` in the container to the namespace you deployed to. For example, `HG_NAMESPACE=examplenamspace`
+
+6. Run the following command to create a new user:
+
+```
+./hg users add -u newuser
+```
+
+Please Note: You can run `hg users -h` to get more info on command usage.
 
 ## Customize The Installation
 To customize the Hyperglance deployment, a values.yaml can be created and passed to the helm command. 
