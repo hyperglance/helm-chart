@@ -11,6 +11,19 @@ data:
   DEPLOYMENT_TARGET: 'k8s'
   APACHE_VERIFY_CLIENT: '{{ .Values.httpdSSL.validateClient }}'
   SAML_ENABLED: '{{ .Values.saml.enabled }}'
+  {{- if .Values.ai.mcp.enabled }}
+  # httpd reverse-proxies /mcp -> the MCP pod (SAML-bypassed; agents use HGAPI Basic).
+  MCP_ENABLED: 'true'
+  MCP_PROXY_ADDR: '{{ .Release.Name }}-mcp'
+  MCP_PROXY_PORT: '{{ .Values.ai.mcp.port | default 3001 }}'
+  {{- end }}
+  {{- if and .Values.ai.llama.enabled .Values.ai.llama.webui.enabled }}
+  # httpd reverse-proxies the optional llama web UI under a subpath (kept inside SAML).
+  LLAMA_WEBUI_ENABLED: 'true'
+  LLAMA_PROXY_ADDR: '{{ .Release.Name }}-llama'
+  LLAMA_PROXY_PORT: '{{ .Values.ai.llama.port | default 8080 }}'
+  LLAMA_PROXY_PREFIX: '{{ include "hyperglance.llamaApiPrefix" . }}'
+  {{- end }}
 {{- range $key, $value := .Values.hyperglanceEnvVars }}
   {{ $key }}: {{ $value | quote }}
 {{- end }}

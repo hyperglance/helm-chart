@@ -13,15 +13,38 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  {{- if .Values.networkPolicy.ingress }}
+  {{- /*
+    Additive AI ingress: when ai.mcp is enabled, the mcp pod calls back into the main pod's
+    internal wildfly listener (8443, via service-wildfly-internal). Appended to the user's
+    ingress rules (never replaces them), least-privilege by podSelector + port.
+  */}}
+  {{- $aiIngress := list }}
+  {{- if .Values.ai.mcp.enabled }}
+  {{- $aiIngress = append $aiIngress (dict "from" (list (dict "podSelector" (dict "matchLabels" (dict "app" (printf "%s-mcp" (include "hyperglance.name" .)))))) "ports" (list (dict "protocol" "TCP" "port" 8443))) }}
+  {{- end }}
+  {{- $ingress := concat (.Values.networkPolicy.ingress | default list) $aiIngress }}
+  {{- if $ingress }}
   ingress:
-    {{- toYaml .Values.networkPolicy.ingress | nindent 4 }}
+    {{- toYaml $ingress | nindent 4 }}
   {{- else }}
   ingress: []
   {{- end }}
-  {{- if .Values.networkPolicy.egress }}
+  {{- /*
+    Additive AI egress: when AI is enabled, the main pod (httpd) must reach the llama/mcp
+    Service pods. Appended to the user's egress rules (never replaces them), least-privilege
+    by podSelector + port. Egress rules are OR'd, so this only widens what is allowed.
+  */}}
+  {{- $aiEgress := list }}
+  {{- if .Values.ai.llama.enabled }}
+  {{- $aiEgress = append $aiEgress (dict "to" (list (dict "podSelector" (dict "matchLabels" (dict "app" (printf "%s-llama" (include "hyperglance.name" .)))))) "ports" (list (dict "protocol" "TCP" "port" (.Values.ai.llama.port | default 8080)))) }}
+  {{- end }}
+  {{- if .Values.ai.mcp.enabled }}
+  {{- $aiEgress = append $aiEgress (dict "to" (list (dict "podSelector" (dict "matchLabels" (dict "app" (printf "%s-mcp" (include "hyperglance.name" .)))))) "ports" (list (dict "protocol" "TCP" "port" (.Values.ai.mcp.port | default 3001)))) }}
+  {{- end }}
+  {{- $egress := concat (.Values.networkPolicy.egress | default list) $aiEgress }}
+  {{- if $egress }}
   egress:
-    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+    {{- toYaml $egress | nindent 4 }}
   {{- else }}
   egress: []
   {{- end }}

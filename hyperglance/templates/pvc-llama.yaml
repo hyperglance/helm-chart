@@ -1,0 +1,27 @@
+{{- if .Values.ai.llama.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .Release.Name }}-llama-data"
+  labels:
+    app: {{ include "hyperglance.name" . }}-llama
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  {{- if .Values.ai.llama.pvc.annotations }}
+  annotations:
+    {{- .Values.ai.llama.pvc.annotations | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.fargate.enabled }}
+  storageClassName: {{ .Values.fargate.storageClassName }}
+{{- end }}
+{{- if and (not .Values.fargate.enabled) (.Values.pvc.storageClassName) }}
+  storageClassName: {{ .Values.pvc.storageClassName }}
+{{- end }}
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.ai.llama.pvc.storageRequest | default "20Gi" }}
+{{- end }}

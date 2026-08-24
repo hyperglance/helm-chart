@@ -1,0 +1,108 @@
+{{- if .Values.ai.mcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-mcp
+  labels:
+    app: {{ include "hyperglance.name" . }}-mcp
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    {{- include "hyperglance.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "hyperglance.name" . }}-mcp
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        timestamp: {{ now | date "2006-01-02T15:04:05" }}
+        {{- if .Values.ai.mcp.podAnnotations }}
+        {{- toYaml .Values.ai.mcp.podAnnotations | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ include "hyperglance.name" . }}-mcp
+    spec:
+      # CIS Control 5.1.5
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: {{ .Values.ai.mcp.terminationGracePeriodSeconds | default 45 }}
+    {{- if .Values.ai.mcp.nodeSelector }}
+      nodeSelector:
+        {{- .Values.ai.mcp.nodeSelector | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.ai.mcp.affinity }}
+      affinity:
+        {{- .Values.ai.mcp.affinity | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.ai.mcp.tolerations }}
+      tolerations:
+        {{- .Values.ai.mcp.tolerations | toYaml | nindent 8 }}
+    {{- end }}
+      {{- $pullSecrets := include "hyperglance.imagePullSecrets" . | trim }}
+      {{- if $pullSecrets }}
+      imagePullSecrets:
+        {{- $pullSecrets | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: mcp
+        image: {{ .Values.ai.mcp.image | default "hyperglance/mcp" }}:{{ .Values.ai.mcp.tag | default .Chart.AppVersion }}
+        {{- if .Values.ai.mcp.enable_security_context }}
+        securityContext:
+          {{- toYaml .Values.ai.mcp.securityContext | nindent 10 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.ai.mcp.resources | nindent 10 }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        envFrom:
+        - configMapRef:
+            name: "{{ .Release.Name }}-env"
+        ports:
+        - containerPort: {{ .Values.ai.mcp.port | default 3001 }}
+        env:
+        - name: MCP_TRANSPORT
+          value: "http"
+        - name: PORT
+          value: {{ .Values.ai.mcp.port | default 3001 | quote }}
+        # In-cluster Hyperglance API target (the internal ClusterIP wildfly service).
+        # https/8443: hgapi.war enforces a CONFIDENTIAL transport-guarantee and 302s
+        # plain-HTTP requests to :8443, which the ClusterIP didn't route before now.
+        - name: HG_URL
+          value: {{ .Values.ai.mcp.hgUrl | default (printf "https://%s-internal:8443" .Release.Name) | quote }}
+        {{- if .Values.ai.mcp.hgApi.enabled }}
+        # Optional server-side credential. External agents normally pass their own
+        # Authorization header per request, so this is only a fallback default.
+        - name: HG_AUTHORIZATION
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.ai.mcp.hgApi.existingSecretName | default (printf "%s-mcp-auth" .Release.Name) }}
+              key: {{ .Values.ai.mcp.hgApi.existingSecretKey | default "HG_AUTHORIZATION" }}
+        {{- end }}
+        volumeMounts:
+        - name: mcp-tmp
+          mountPath: /tmp
+          readOnly: false
+        {{- $mcpPort := .Values.ai.mcp.port | default 3001 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ $mcpPort }}
+          periodSeconds: {{ .Values.ai.mcp.readinessProbe.periodSeconds | default 10 }}
+          failureThreshold: {{ .Values.ai.mcp.readinessProbe.failureThreshold | default 3 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ $mcpPort }}
+          periodSeconds: {{ .Values.ai.mcp.livenessProbe.periodSeconds | default 10 }}
+          failureThreshold: {{ .Values.ai.mcp.livenessProbe.failureThreshold | default 3 }}
+          initialDelaySeconds: {{ .Values.ai.mcp.livenessProbe.initialDelaySeconds | default 15 }}
+      volumes:
+      # Mapped to /tmp to allow for rootless container with readonly filesystem enabled.
+      - name: mcp-tmp
+        emptyDir: {}
+      restartPolicy: Always
+      dnsPolicy: {{ .Values.dnsPolicy }}
+{{- end }}

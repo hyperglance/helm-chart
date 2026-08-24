@@ -1,5 +1,20 @@
 # Breaking Changes
 
+**TBD**
+
+\> vX.X.X
+   - `customIngress.metadata`, `customIngress.spec`, `customLoadbalancer.metadata`, and `customLoadbalancer.spec` must now be structured YAML maps in your values file, not pre-formatted strings. If you are using `customIngress.enabled: true` or `customLoadbalancer.enabled: true`, update your values file before upgrading. Example:
+     ```yaml
+     # Before (string — no longer supported):
+     customIngress:
+       metadata: "name: my-ingress\nnamespace: default"
+     # After (map — required):
+     customIngress:
+       metadata:
+         name: my-ingress
+         namespace: default
+     ```
+
 **10/02/2026**
 
 \> v8.1.57

@@ -1,0 +1,28 @@
+suite: advanced_runtime_properties.enabled actually gates CONFIG_FORCE_* rendering
+# Regression guard for the enabled-is-currently-ignored bug: CONFIG_FORCE_* keys must only
+# reach the rendered ConfigMap when the section is explicitly enabled, matching the field's
+# own long-standing doc comment ("should remain unchanged unless told otherwise").
+templates:
+  - configmap.yaml
+tests:
+  - it: does not render CONFIG_FORCE_* keys when disabled
+    set:
+      advanced_runtime_properties.enabled: false
+      advanced_runtime_properties.CONFIG_FORCE_foo: bar
+    asserts:
+      - notExists:
+          path: data.CONFIG_FORCE_foo
+  - it: renders CONFIG_FORCE_* keys when enabled
+    set:
+      advanced_runtime_properties.enabled: true
+      advanced_runtime_properties.CONFIG_FORCE_foo: bar
+    asserts:
+      - equal:
+          path: data.CONFIG_FORCE_foo
+          value: "bar"
+  - it: enabled with no other properties renders cleanly (no error, no extra keys)
+    set:
+      advanced_runtime_properties.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1

@@ -1,0 +1,22 @@
+{{- if .Values.ai.llama.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-llama
+  labels:
+    app: {{ include "hyperglance.name" . }}-llama
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  # ClusterIP only — llama is reached in-cluster by the Wildfly AI feature (and,
+  # optionally, by httpd for the web UI). It is never exposed externally.
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.ai.llama.port | default 8080 }}
+      targetPort: {{ .Values.ai.llama.port | default 8080 }}
+      protocol: TCP
+      name: llama-http
+  selector:
+    app: {{ include "hyperglance.name" . }}-llama
+{{- end }}

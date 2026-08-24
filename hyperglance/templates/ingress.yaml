@@ -29,9 +29,13 @@ spec:
                   number: 443
 {{ end }}
 {{ if .Values.customIngress.enabled }}
+{{- if not (kindIs "map" .Values.customIngress.metadata) }}{{ fail "customIngress.metadata must be a YAML map, not a string. See BREAKING_CHANGES.md." }}{{- end }}
+{{- if not (kindIs "map" .Values.customIngress.spec) }}{{ fail "customIngress.spec must be a YAML map, not a string. See BREAKING_CHANGES.md." }}{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-metadata: {{ .Values.customIngress.metadata }}
-spec: {{ .Values.customIngress.spec }}
+metadata:
+  {{- toYaml .Values.customIngress.metadata | nindent 2 }}
+spec:
+  {{- toYaml .Values.customIngress.spec | nindent 2 }}
 {{ end }}

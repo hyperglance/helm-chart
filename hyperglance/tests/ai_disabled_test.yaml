@@ -1,0 +1,21 @@
+suite: AI resources are absent when AI is disabled
+# Backward-compatibility guard: a customer who never enabled AI must not suddenly get the
+# llama/mcp StatefulSets, PVC or NetworkPolicies on upgrade. Asserted on the explicit
+# disabled state so it stays valid regardless of what the default becomes.
+templates:
+  - statefulset-llama.yaml
+  - deployment-mcp.yaml
+  - service-llama.yaml
+  - service-mcp.yaml
+  - service-wildfly-internal.yaml
+  - pvc-llama.yaml
+  - networkpolicy-ai.yaml
+tests:
+  - it: renders zero documents across all AI templates when disabled
+    set:
+      ai.llama.enabled: false
+      ai.mcp.enabled: false
+      networkPolicy.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0

@@ -1,0 +1,55 @@
+suite: customIngress / customLoadbalancer accept structured maps, reject strings
+# Locks in the toYaml-based injection: metadata/spec must be YAML maps (the documented
+# contract, and the values.yaml defaults). A raw map passed through {{ .Values.x }} would
+# render Go's map[...] representation (invalid YAML); these assertions guard that regression.
+tests:
+  - it: customIngress renders metadata/spec from a structured map
+    template: ingress.yaml
+    set:
+      customIngress.enabled: true
+      customIngress.metadata.name: my-ingress
+      customIngress.metadata.annotations.team: platform
+      customIngress.spec.ingressClassName: alb
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: my-ingress
+      - equal:
+          path: metadata.annotations.team
+          value: platform
+      - equal:
+          path: spec.ingressClassName
+          value: alb
+  - it: customIngress fails with a clear message when metadata is a string
+    template: ingress.yaml
+    set:
+      customIngress.enabled: true
+      customIngress.metadata: "name: my-ingress"
+    asserts:
+      - failedTemplate:
+          errorMessage: "customIngress.metadata must be a YAML map, not a string. See BREAKING_CHANGES.md."
+  - it: customLoadbalancer renders metadata/spec from a structured map
+    template: loadbalancer.yaml
+    set:
+      customLoadbalancer.enabled: true
+      customLoadbalancer.metadata.name: my-lb
+      customLoadbalancer.spec.type: LoadBalancer
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: my-lb
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+  - it: customLoadbalancer fails with a clear message when spec is a string
+    template: loadbalancer.yaml
+    set:
+      customLoadbalancer.enabled: true
+      customLoadbalancer.spec: "type: LoadBalancer"
+    asserts:
+      - failedTemplate:
+          errorMessage: "customLoadbalancer.spec must be a YAML map, not a string. See BREAKING_CHANGES.md."

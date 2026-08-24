@@ -49,28 +49,3 @@ spec:
   selector:
     app: {{ template "hyperglance.name" . }}
 {{ end }}
-{{ if .Values.fargate.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  # name: {{ template "hyperglance.name" . }}
-  name: {{ .Release.Name }}
-  namespace: {{.Values.fargate.namespace }}
-  labels:
-    app: {{ template "hyperglance.name" . }}
-    chart: {{ template "hyperglance.chart" . }}
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
-spec:
-  # type: {{ .Values.fargate.service.type }}
-  type: {{ .Values.fargate.service.type }}
-  ports:
-    - port: {{ .Values.fargate.service.https.port }}
-      targetPort: 443
-      protocol: TCP
-      name: https
-  selector:
-    # app: {{ template "hyperglance.name" . }}
-    app: {{ .Release.Name }}
-{{ end }}

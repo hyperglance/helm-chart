@@ -13,8 +13,13 @@
    * [Acquire the Hyperglance-helm chart](#acquire-the-hyperglance-helm-chart)
    * [Provenance (optional)](#provenance-optional)
    * [Accessing Hyperglance WebUI & Login](#accessing-hyperglance-webui-login)
+   * [Managing Users When Running The Helm Chart On Your Own Cluster](#managing-users-when-running-the-helm-chart-on-your-own-cluster)
    * [Customize The Installation](#customize-the-installation)
 - [NetworkPolicy](#networkpolicy)
+- [Private Image Registries](#private-image-registries)
+- [AI Features](#ai-features)
+   * [MCP Server (`ai.mcp`)](#mcp-server-aimcp)
+   * [Llama Inference (`ai.llama`) — Beta, Unsupported](#llama-inference-aillama--beta-unsupported)
 - [Use With EKS](#use-with-eks)
    * [Create An IAM Role And Policy for Hyperglance](#create-an-iam-role-and-policy-for-hyperglance)
    * [EKS With Fargate](#eks-with-fargate)
@@ -158,6 +163,110 @@ helm upgrade --install hyperglance hyperglance/hyperglance-helm \
   --set networkPolicy.enabled=true \
   --set networkPolicy.ingress[0].from[0].namespaceSelector.matchLabels.'kubernetes\.io/metadata\.name'=hyperglance
 ```
+
+## Private Image Registries
+If your images are hosted in one or more private registries, the chart can attach the relevant `imagePullSecrets` to every Hyperglance pod.
+
+There are two parameters:
+
+- **`privateImageRepo`** — a single registry. **Deprecated** but still honoured; retained for backward compatibility.
+- **`privateImageRepos`** — a **map of registries keyed by name**, for one or more additional registries. Processed **additively** with `privateImageRepo`, so existing single-registry configs keep working and you can simply add more.
+
+> Each key becomes part of a generated Secret name (`<release>-repo-secret-<key>`), so keys must be a DNS-1123 label: lowercase alphanumeric or `-`, starting and ending alphanumeric.
+
+**Option A — let the chart create the pull secret (inline credentials):**
+```yaml
+privateImageRepos:
+  registry1:
+    enabled: true
+    registry: registry.example.com
+    username: <user>
+    password: <token>
+    email: <email>
+  registry2:
+    enabled: true
+    registry: https://index.docker.io/v1/
+    username: <user>
+    password: <token>
+    email: <email>
+```
+For each enabled entry the chart generates a `kubernetes.io/dockerconfigjson` Secret (`<release>-repo-secret-<key>`) and adds it to every pod's `imagePullSecrets`.
+
+**Option B — bring your own pull secret (recommended for production):** create the Secret yourself and reference it with `existingSecretName` (the chart will then not create one for that entry, and `existingSecretName` takes precedence):
+```bash
+kubectl create secret docker-registry my-registry-creds \
+  --docker-server=registry.example.com \
+  --docker-username=<user> \
+  --docker-password=<token> \
+  -n hyperglance
+```
+```yaml
+privateImageRepos:
+  registry1:
+    enabled: true
+    existingSecretName: my-registry-creds
+```
+
+## AI Features
+
+The chart can optionally deploy two AI-related components. Both are **off by default**
+(`ai.llama.enabled: false`, `ai.mcp.enabled: false`) and are independent of each other — you
+can enable the MCP server without llama, or vice versa.
+
+> :warning: **Llama inference (`ai.llama`) is in beta and not currently supported.** This
+> includes GPU-accelerated inference (`ai.llama.gpu.enabled`). Enable it for evaluation only —
+> behaviour, defaults, and resource requirements may change without a deprecation notice, and
+> it is not covered by standard support channels.
+
+### MCP Server (`ai.mcp`)
+
+The MCP server exposes a [Model Context Protocol](https://modelcontextprotocol.io/) endpoint
+so external AI agents (e.g. an LLM-based assistant) can query your Hyperglance data — cost,
+inventory, recommendations, rule findings — through a standard tool-call interface, without
+direct database or REST API integration work.
+
+**Enable it:**
+```yaml
+ai:
+  mcp:
+    enabled: true
+```
+
+This deploys a single-replica MCP server, reachable at `https://<your-hyperglance-url>/mcp`.
+
+**Authentication:** unlike the main Hyperglance UI, `/mcp` is **not** behind SAML — it is
+designed for machine clients, not browser sessions. Callers authenticate with a Hyperglance
+API key: create one in the Hyperglance UI, then use the **full value shown there verbatim** as
+the `Authorization` header on each MCP request — it already includes the `Basic ` prefix (e.g.
+`Authorization: Basic <base64 user:token>`), so don't prepend `Basic ` again on top of it.
+Optionally, you can configure a server-side fallback credential the MCP server uses when a
+caller doesn't supply its own:
+```yaml
+ai:
+  mcp:
+    hgApi:
+      enabled: true
+      authorization: "Basic <base64 user:token, as shown in the Hyperglance UI>"
+      # or, to bring your own Secret instead of letting the chart create one:
+      # existingSecretName: my-mcp-auth-secret
+      # existingSecretKey: HG_AUTHORIZATION
+```
+Treat this fallback credential the same as any other API key: prefer `existingSecretName`
+over inlining `authorization` in a values file that ends up in version control.
+
+**Connecting an agent:** point your MCP-compatible client at
+`https://<your-hyperglance-url>/mcp` using Streamable HTTP transport, with the `Authorization`
+header described above.
+
+### Llama Inference (`ai.llama`) — Beta, Unsupported
+
+`ai.llama` deploys an in-cluster [llama.cpp](https://github.com/ggml-org/llama.cpp) server
+used by certain AI-assisted features in the product. As noted above, **this component is beta
+and not currently supported** — including the GPU-acceleration path
+(`ai.llama.gpu.enabled`, which requires an NVIDIA device plugin and RuntimeClass already
+configured on your cluster). If you enable it, expect to evaluate it standalone rather than
+rely on it for production workloads; see `values.yaml` for the full set of tunables (model
+selection, resource sizing, context size, GPU layers).
 
 # Use With EKS
 ## Create An IAM Role And Policy for Hyperglance
@@ -686,4 +795,33 @@ stringData:
   PROXY_PORT: ""
   PROXY_USER: ""
   PROXY_PASSWORD: ""
+---
+# Private image registry pull secret (for privateImageRepo / privateImageRepos[*].existingSecretName).
+# Must be of type kubernetes.io/dockerconfigjson. Tip: the easiest way to create one is
+#   kubectl create secret docker-registry custom-repo-secret \
+#     --docker-server=<registry> --docker-username=<user> --docker-password=<token> -n <namespace>
+# The equivalent declarative form is:
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: "custom-repo-secret"
+stringData:
+  .dockerconfigjson: |
+    {"auths":{"registry.example.com":{"username":"<user>","password":"<token>","email":"<email>","auth":"<base64(user:token)>"}}}
+```
+
+A private registry pull secret created as above can be referenced via either parameter. Both are honoured, so you can use whichever fits (or mix them):
+
+```yaml
+# Legacy single-registry parameter (deprecated, still supported)
+privateImageRepo:
+  enabled: true
+  existingSecretName: custom-repo-secret
+
+# Newer multi-registry map (one entry per registry)
+privateImageRepos:
+  registry1:
+    enabled: true
+    existingSecretName: custom-repo-secret
 ```

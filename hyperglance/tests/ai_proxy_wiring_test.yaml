@@ -1,0 +1,46 @@
+suite: httpd proxy ConfigMap wiring matches AI Service names and ports
+# Guards the core routing this branch fixed: the httpd proxy env must match the AI Service
+# DNS names/ports byte-for-byte, or /mcp and /llama break at runtime with no render error.
+templates:
+  - configmap.yaml
+tests:
+  - it: wires MCP/llama proxy address, port and prefix from values
+    set:
+      ai.mcp.enabled: true
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.webui.enabled: true
+    asserts:
+      - equal:
+          path: data.MCP_ENABLED
+          value: "true"
+      - equal:
+          path: data.MCP_PROXY_ADDR
+          value: RELEASE-NAME-mcp
+      - equal:
+          path: data.MCP_PROXY_PORT
+          value: "3001"
+      - equal:
+          path: data.LLAMA_PROXY_ADDR
+          value: RELEASE-NAME-llama
+      - equal:
+          path: data.LLAMA_PROXY_PORT
+          value: "8080"
+      - equal:
+          path: data.LLAMA_PROXY_PREFIX
+          value: /llama
+  - it: tracks a custom ai.mcp.port / ai.llama.port (no hardcoded drift)
+    set:
+      ai.mcp.enabled: true
+      ai.mcp.port: 9090
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.webui.enabled: true
+      ai.llama.port: 9091
+    asserts:
+      - equal:
+          path: data.MCP_PROXY_PORT
+          value: "9090"
+      - equal:
+          path: data.LLAMA_PROXY_PORT
+          value: "9091"

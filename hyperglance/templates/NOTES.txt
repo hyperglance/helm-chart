@@ -75,5 +75,47 @@
 |        Default Password for GCP: The instance-id of the VM instance e.g.  2531258160337713584          |
 |                                                                                                        |
     {{- end}}
-{{- end }}    
+{{- end }}
 +--------------------------------------------------------------------------------------------------------+
+{{- if or .Values.ai.llama.enabled .Values.ai.mcp.enabled }}
+
+  ===================
+  AI Services enabled
+  ===================
+{{- if .Values.ai.llama.enabled }}
+
+  llama-cpp inference server (in-cluster only):
+    1. In the Hyperglance UI, configure the AI chat model with:
+         provider:    OPENAI
+         endpointUrl: http://{{ .Release.Name }}-llama:{{ .Values.ai.llama.port | default 8080 }}{{ include "hyperglance.llamaApiPrefix" . }}/v1
+         modelName:   {{ .Values.ai.llama.modelName }}
+         apiKey:      <the value of ai.llama.apiKey>
+       (the API is always served under {{ include "hyperglance.llamaApiPrefix" . }} via --api-prefix — note the path in endpointUrl)
+    2. First start downloads the model (~GBs) to the PVC; allow several minutes.
+{{- if .Values.ai.llama.webui.enabled }}
+    3. The llama web UI is enabled at {{ include "hyperglance.llamaApiPrefix" . }} (behind httpd; SAML-gated in prod).
+       httpd injects the api key, so the UI loads in a browser without entering a key.
+       (Model switching is unavailable behind the sub-path — known upstream webui limitation.)
+{{- end }}
+{{- if eq (.Values.ai.llama.apiKey | default "hyperglance-llama-change-me") "hyperglance-llama-change-me" }}
+
+  [!] SECURITY: ai.llama.apiKey is still the shipped default ("hyperglance-llama-change-me").
+     This value is public in the chart source. Set a unique ai.llama.apiKey{{ if and .Values.ai.llama.webui.enabled (not .Values.saml.enabled) }} — the web UI
+     is enabled and SAML is disabled, so it is otherwise unguarded{{ end }}.
+{{- end }}
+{{- end }}
+{{- if .Values.ai.mcp.enabled }}
+
+  MCP server (for external AI agents):
+    Reachable via httpd at https://<host>/mcp once the build-repo /mcp proxy rule is present.
+    External agents authenticate with an HGAPI key (create one in the Hyperglance UI) sent as
+    "Authorization: Basic base64(api-name:api-key)".
+{{- end }}
+{{- if and .Values.fargate.enabled .Values.ai.llama.enabled .Values.ai.llama.gpu.enabled }}
+
+  [!] WARNING: ai.llama.gpu.enabled=true but fargate.enabled=true. AWS Fargate has no GPU
+     support — the GPU request was IGNORED and llama runs CPU-only. Use a GPU node group
+     (EC2) for acceleration.
+{{- end }}
++--------------------------------------------------------------------------------------------------------+
+{{- end }}

@@ -1,0 +1,21 @@
+{{- if and .Values.ai.llama.bundledModelHostPath (not .Values.fargate.enabled) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "{{ .Release.Name }}-llama-model"
+  labels:
+    app: {{ include "hyperglance.name" . }}-llama
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  # Explicit empty string (see pv-llama-model.yaml) plus static binding via volumeName —
+  # this PVC is never dynamically provisioned, it binds to the PV above by name.
+  storageClassName: ""
+  volumeName: "{{ .Release.Name }}-llama-model"
+  resources:
+    requests:
+      storage: {{ .Values.ai.llama.bundledModelCapacity | default "20Gi" }}
+{{- end }}

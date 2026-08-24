@@ -1,0 +1,216 @@
+{{- if .Values.ai.llama.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-llama
+  labels:
+    app: {{ include "hyperglance.name" . }}-llama
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    {{- include "hyperglance.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "hyperglance.name" . }}-llama
+  replicas: 1
+  serviceName: "{{ .Release.Name }}-llama"
+  template:
+    metadata:
+      annotations:
+        timestamp: {{ now | date "2006-01-02T15:04:05" }}
+        {{- if .Values.ai.llama.podAnnotations }}
+        {{- toYaml .Values.ai.llama.podAnnotations | nindent 8 }}
+        {{- end }}
+      labels:
+        app: {{ include "hyperglance.name" . }}-llama
+    spec:
+      # CIS Control 5.1.5
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # fsGroup lets the rootless container (UID 1000) write the model to a freshly
+      # provisioned PVC. Applied by the kubelet — no container runs as root.
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    {{- if .Values.ai.llama.nodeSelector }}
+      nodeSelector:
+        {{- .Values.ai.llama.nodeSelector | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.ai.llama.affinity }}
+      affinity:
+        {{- .Values.ai.llama.affinity | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if .Values.ai.llama.tolerations }}
+      tolerations:
+        {{- .Values.ai.llama.tolerations | toYaml | nindent 8 }}
+    {{- end }}
+    {{- if and .Values.ai.llama.gpu.enabled (not .Values.fargate.enabled) }}
+      runtimeClassName: {{ .Values.ai.llama.gpu.runtimeClassName | default "nvidia" }}
+    {{- end }}
+      {{- $pullSecrets := include "hyperglance.imagePullSecrets" . | trim }}
+      {{- if $pullSecrets }}
+      imagePullSecrets:
+        {{- $pullSecrets | nindent 6 }}
+      {{- end }}
+      containers:
+      - name: llama
+        image: {{ .Values.ai.llama.image | default "hyperglance/llama-cpp" }}:{{ .Values.ai.llama.tag | default .Chart.AppVersion }}
+        {{- if .Values.ai.llama.enable_security_context }}
+        securityContext:
+          {{- toYaml .Values.ai.llama.securityContext | nindent 10 }}
+        {{- end }}
+        resources:
+          {{- $req := .Values.ai.llama.resources.requests }}
+          {{- $lim := .Values.ai.llama.resources.limits }}
+          {{- if or $req.memory $req.cpu }}
+          requests:
+            {{- if $req.memory }}
+            memory: {{ $req.memory }}
+            {{- end }}
+            {{- if $req.cpu }}
+            cpu: {{ $req.cpu | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if or $lim.memory $lim.cpu (and .Values.ai.llama.gpu.enabled (not .Values.fargate.enabled)) }}
+          limits:
+            {{- if $lim.memory }}
+            memory: {{ $lim.memory }}
+            {{- end }}
+            {{- if $lim.cpu }}
+            cpu: {{ $lim.cpu | quote }}
+            {{- end }}
+            {{- if and .Values.ai.llama.gpu.enabled (not .Values.fargate.enabled) }}
+            nvidia.com/gpu: {{ .Values.ai.llama.gpu.count | default 1 | int }}
+            {{- end }}
+          {{- end }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        envFrom:
+        - configMapRef:
+            name: "{{ .Release.Name }}-env"
+        ports:
+        - containerPort: {{ .Values.ai.llama.port | default 8080 }}
+        env:
+        - name: LLAMA_MODEL_NAME
+          value: {{ .Values.ai.llama.modelName | quote }}
+        - name: LLAMA_DOWNLOAD_URL
+          value: {{ .Values.ai.llama.downloadUrl | quote }}
+        {{- if .Values.ai.llama.bundledModelHostPath }}
+        # Airgap: start.sh copies the model from this read-only mount instead of downloading
+        # it. Rendered only when bundledModelHostPath is set (empty/online = absent).
+        - name: LLAMA_BUNDLED_MODEL_PATH
+          value: "/bundled-model"
+        {{- end }}
+        - name: LLAMA_PORT
+          value: {{ .Values.ai.llama.port | default 8080 | quote }}
+        - name: LLAMA_THREADS
+          value: {{ .Values.ai.llama.threads | default 4 | quote }}
+        - name: LLAMA_CTX_SIZE
+          value: {{ .Values.ai.llama.ctxSize | default 4096 | quote }}
+        - name: LLAMA_GPU_LAYERS
+          value: {{ .Values.ai.llama.gpuLayers | default 0 | quote }}
+        # Static API key llama-server enforces on the API and web UI (see start.sh --api-key).
+        # Sourced from a Secret: chart-created <release>-llama-api-key, or BYO existingSecretName.
+        - name: LLAMA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "hyperglance.llamaApiKeySecretName" . }}
+              key: {{ include "hyperglance.llamaApiKeySecretKey" . }}
+        # Web UI toggle + base path. start.sh adds --no-webui when disabled, else --api-prefix.
+        - name: LLAMA_WEBUI_ENABLED
+          value: {{ .Values.ai.llama.webui.enabled | default false | quote }}
+        - name: LLAMA_API_PREFIX
+          value: {{ include "hyperglance.llamaApiPrefix" . | quote }}
+        {{- if .Values.ai.llama.hfToken.enabled }}
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.ai.llama.hfToken.existingSecretName | default (printf "%s-llama-hf-token" .Release.Name) }}
+              key: {{ .Values.ai.llama.hfToken.existingSecretKey | default "HF_TOKEN" }}
+        {{- end }}
+        {{- if .Values.proxy.enabled }}
+        # Respect the cluster proxy for the first-run model download (curl honours these).
+        {{- $auth := "" }}
+        {{- if .Values.proxy.user }}{{ $auth = printf "%s:%s@" .Values.proxy.user .Values.proxy.pass }}{{ end }}
+        {{- $proxyUrl := printf "http://%s%s:%v" $auth .Values.proxy.host .Values.proxy.port }}
+        - name: HTTP_PROXY
+          value: {{ $proxyUrl | quote }}
+        - name: HTTPS_PROXY
+          value: {{ $proxyUrl | quote }}
+        - name: NO_PROXY
+          value: "localhost,127.0.0.1,::1,169.254.169.254,.svc,.svc.cluster.local,.cluster.local"
+        {{- end }}
+        volumeMounts:
+        - name: llama-data
+          mountPath: /data
+          readOnly: false
+        - name: llama-tmp
+          mountPath: /tmp
+          readOnly: false
+        {{- if .Values.ai.llama.bundledModelHostPath }}
+        - name: bundled-model
+          mountPath: /bundled-model
+          readOnly: true
+        {{- end }}
+        {{- /*
+          start.sh always applies --api-prefix, so health lives at <prefix>/health and is
+          behind the api-key. Probes exec curl with the key from the env (secretKeyRef) —
+          httpGet header values can't reference a Secret, and a BYO secret has no plaintext
+          for the chart to inline. Timings still come from values.
+        */}}
+        {{- $llamaPort := .Values.ai.llama.port | default 8080 }}
+        {{- $healthPath := printf "%s/health" (include "hyperglance.llamaApiPrefix" .) }}
+        {{- $healthCmd := printf "curl -fsS -H \"Authorization: Bearer $LLAMA_API_KEY\" http://localhost:%v%s" $llamaPort $healthPath }}
+        {{- with .Values.ai.llama.startupProbe }}
+        startupProbe:
+          exec:
+            command: ["sh", "-c", {{ $healthCmd | quote }}]
+          {{- with .periodSeconds }}
+          periodSeconds: {{ . }}
+          {{- end }}
+          {{- with .failureThreshold }}
+          failureThreshold: {{ . }}
+          {{- end }}
+          {{- with .initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+          {{- end }}
+          {{- with .timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+          {{- end }}
+        {{- end }}
+        {{- with .Values.ai.llama.readinessProbe }}
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", {{ $healthCmd | quote }}]
+          {{- with .periodSeconds }}
+          periodSeconds: {{ . }}
+          {{- end }}
+          {{- with .failureThreshold }}
+          failureThreshold: {{ . }}
+          {{- end }}
+          {{- with .initialDelaySeconds }}
+          initialDelaySeconds: {{ . }}
+          {{- end }}
+          {{- with .timeoutSeconds }}
+          timeoutSeconds: {{ . }}
+          {{- end }}
+        {{- end }}
+      volumes:
+      - name: llama-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-llama-data
+      # Mapped to /tmp to allow for rootless container with readonly filesystem enabled.
+      - name: llama-tmp
+        emptyDir: {}
+      {{- if .Values.ai.llama.bundledModelHostPath }}
+      # Airgap: the toolbox/AMI drops <modelName> into this host directory; start.sh reads it.
+      # PVC (not a raw hostPath) so PodSecurity restricted admits the pod — the PVC is
+      # statically bound to a local PV at this same fixed path (pv-llama-model.yaml).
+      - name: bundled-model
+        persistentVolumeClaim:
+          claimName: "{{ .Release.Name }}-llama-model"
+      {{- end }}
+      # restartPolicy is hardcoded: Kubernetes only permits "Always" for StatefulSet pods.
+      restartPolicy: Always
+      dnsPolicy: {{ .Values.dnsPolicy }}
+{{- end }}

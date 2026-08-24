@@ -1,0 +1,33 @@
+suite: MCP Deployment graceful-shutdown / rollout hardening
+# The MCP server holds session state in-memory and runs a single replica. Two guards:
+#  - Recreate (not RollingUpdate): never run two mcp pods behind the one ClusterIP Service
+#    at once, or a client is routed to the pod that doesn't hold its session -> 404/409.
+#  - terminationGracePeriodSeconds > the app's drain window (MCP_SHUTDOWN_GRACE_MS,
+#    default HG_TIMEOUT_MS + 5s = 35s), so k8s does not SIGKILL the pod mid-drain.
+templates:
+  - deployment-mcp.yaml
+tests:
+  - it: uses the Recreate strategy so sessions are never split across two pods
+    set:
+      ai.mcp.enabled: true
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: defaults terminationGracePeriodSeconds above the 35s drain window
+    set:
+      ai.mcp.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 45
+
+  - it: honours an operator-supplied terminationGracePeriodSeconds
+    set:
+      ai.mcp.enabled: true
+      ai.mcp.terminationGracePeriodSeconds: 90
+    asserts:
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 90

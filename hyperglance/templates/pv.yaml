@@ -50,4 +50,31 @@ spec:
       driver: efs.csi.aws.com
       volumeHandle: {{ printf "%s:%s:%s" $.Values.fargate.efs.filesystem_id $.Values.fargate.efs.postgresql.sub_path $.Values.fargate.efs.postgresql.accesspoint_id | quote }}
 {{ end }}
+
+{{ if .Values.ai.llama.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-llama-data
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+   capacity:
+      storage: {{ .Values.fargate.efs.llama.storageCapacity | default (.Values.ai.llama.pvc.storageRequest | default "20Gi") }}
+   volumeMode: Filesystem
+   accessModes:
+      - ReadWriteOnce
+   persistentVolumeReclaimPolicy: Retain
+   storageClassName: {{ .Values.fargate.storageClassName }}
+   claimRef:
+      namespace: {{ .Release.Namespace }}
+      name: {{ .Release.Name }}-llama-data
+   csi:
+      driver: efs.csi.aws.com
+      volumeHandle: {{ printf "%s:%s:%s" $.Values.fargate.efs.filesystem_id $.Values.fargate.efs.llama.sub_path $.Values.fargate.efs.llama.accesspoint_id | quote }}
+{{ end }}
 {{ end }}

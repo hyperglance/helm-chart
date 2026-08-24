@@ -1,0 +1,22 @@
+{{- if .Values.ai.mcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-mcp
+  labels:
+    app: {{ include "hyperglance.name" . }}-mcp
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  # ClusterIP only — external AI agents reach the MCP server through the httpd
+  # reverse proxy at /mcp (build-repo D7), never via this Service directly.
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.ai.mcp.port | default 3001 }}
+      targetPort: {{ .Values.ai.mcp.port | default 3001 }}
+      protocol: TCP
+      name: mcp-http
+  selector:
+    app: {{ include "hyperglance.name" . }}-mcp
+{{- end }}

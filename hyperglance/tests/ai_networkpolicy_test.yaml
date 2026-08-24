@@ -1,0 +1,92 @@
+suite: main pod ingress/egress are additive (user rules + AI rules)
+templates:
+  - networkpolicy.yaml
+tests:
+  - it: keeps the user egress rule AND appends the llama/mcp egress rules
+    set:
+      networkPolicy.enabled: true
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.mcp.enabled: true
+      networkPolicy.egress:
+        - to:
+            - ipBlock:
+                cidr: 10.0.0.0/8
+          ports:
+            - protocol: TCP
+              port: 443
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            to:
+              - ipBlock:
+                  cidr: 10.0.0.0/8
+            ports:
+              - protocol: TCP
+                port: 443
+      - contains:
+          path: spec.egress
+          content:
+            to:
+              - podSelector:
+                  matchLabels:
+                    app: hyperglance-helm-llama
+            ports:
+              - protocol: TCP
+                port: 8080
+      - contains:
+          path: spec.egress
+          content:
+            to:
+              - podSelector:
+                  matchLabels:
+                    app: hyperglance-helm-mcp
+            ports:
+              - protocol: TCP
+                port: 3001
+  - it: keeps the user ingress rule AND appends the mcp ingress rule when ai.mcp is enabled
+    set:
+      networkPolicy.enabled: true
+      ai.mcp.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - ipBlock:
+                cidr: 10.0.0.0/8
+          ports:
+            - protocol: TCP
+              port: 443
+    asserts:
+      - contains:
+          path: spec.ingress
+          content:
+            from:
+              - ipBlock:
+                  cidr: 10.0.0.0/8
+            ports:
+              - protocol: TCP
+                port: 443
+      - contains:
+          path: spec.ingress
+          content:
+            from:
+              - podSelector:
+                  matchLabels:
+                    app: hyperglance-helm-mcp
+            ports:
+              - protocol: TCP
+                port: 8443
+  - it: does not append the mcp ingress rule when ai.mcp is disabled
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - notContains:
+          path: spec.ingress
+          content:
+            from:
+              - podSelector:
+                  matchLabels:
+                    app: hyperglance-helm-mcp
+            ports:
+              - protocol: TCP
+                port: 8443

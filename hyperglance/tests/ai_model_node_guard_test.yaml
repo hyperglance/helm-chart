@@ -1,0 +1,50 @@
+suite: Bundled-model PV requires a matching node name
+# secret.yaml's fail-fast block covers both directions of the bundledModelHostPath /
+# modelNodeName pairing (pv-llama-model.yaml can't: its whole body is gated on
+# bundledModelHostPath being set, so a guard placed there never sees the reverse case).
+templates:
+  - secret.yaml
+  - pv-llama-model.yaml
+tests:
+  - it: fails when bundledModelHostPath is set without modelNodeName
+    template: secret.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.bundledModelHostPath: /var/lib/data/hg-llama-model
+      ai.llama.modelNodeName: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "ai.llama.bundledModelHostPath requires a non-empty ai.llama.modelNodeName"
+
+  - it: fails when modelNodeName is set without bundledModelHostPath
+    template: secret.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.bundledModelHostPath: ""
+      ai.llama.modelNodeName: some-node
+    asserts:
+      - failedTemplate:
+          errorPattern: "ai.llama.modelNodeName has no effect without ai.llama.bundledModelHostPath"
+
+  - it: renders normally when both are set together
+    template: pv-llama-model.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.bundledModelHostPath: /var/lib/data/hg-llama-model
+      ai.llama.modelNodeName: hyperglance-prime
+    asserts:
+      - equal:
+          path: spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0].values[0]
+          value: hyperglance-prime
+
+  - it: renders nothing when neither is set (online install, no static PV needed)
+    template: pv-llama-model.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+    asserts:
+      - hasDocuments:
+          count: 0

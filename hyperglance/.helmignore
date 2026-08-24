@@ -1,0 +1,3 @@
+# helm-unittest suites — render-assertion tests, not chart resources. Keep them out of the
+# packaged .tgz (helm unittest reads them from the chart source dir, not the tarball).
+tests/

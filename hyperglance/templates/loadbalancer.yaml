@@ -1,24 +1,39 @@
 {{ if and (.Values.fargate.enabled) (not .Values.customLoadbalancer.enabled) }}
 ---
+# Backend Service for the Fargate ALB Ingress (ingress.yaml). The ALB uses target-type: ip,
+# so it registers pod IPs discovered via this Service's selector/endpoints — a ClusterIP
+# Service is the correct backend and the ALB is the sole external entry point.
+# This block previously rendered type: LoadBalancer with NLB annotations, which provisioned a
+# redundant second load balancer (an NLB alongside the ALB). See tilt/CLAUDE.md for the
+# rationale before reintroducing any LoadBalancer/NLB configuration here.
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "hyperglance.name" . }}
   namespace: {{.Values.fargate.namespace }}
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: external
-    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-    # service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
-  - port: 443
+  - port: {{ .Values.fargate.service.https.port | default 443 }}
+    targetPort: 443
+    protocol: TCP
+    name: https
+  selector:
+    app: {{ template "hyperglance.name" . }}
 {{ end }}
 {{ if .Values.customLoadbalancer.enabled }}
+{{- if not (kindIs "map" .Values.customLoadbalancer.metadata) }}{{ fail "customLoadbalancer.metadata must be a YAML map, not a string. See BREAKING_CHANGES.md." }}{{- end }}
+{{- if not (kindIs "map" .Values.customLoadbalancer.spec) }}{{ fail "customLoadbalancer.spec must be a YAML map, not a string. See BREAKING_CHANGES.md." }}{{- end }}
 ---
 apiVersion: v1
 kind: Service
-metadata: {{ .Values.customLoadbalancer.metadata }}
-spec: {{ .Values.customLoadbalancer.spec }}
+metadata:
+  {{- toYaml .Values.customLoadbalancer.metadata | nindent 2 }}
+spec:
+  {{- toYaml .Values.customLoadbalancer.spec | nindent 2 }}
 {{ end }}

@@ -1,4 +1,4 @@
-## Generated on: 02-06-2026 12:24:01
+## Generated on: 24-08-2026 16:21:21
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -419,13 +419,189 @@ init_wildfly:
     readOnlyRootFilesystem: true
     runAsUser: 333
     seccompProfile:
-      type: RuntimeDefault      
+      type: RuntimeDefault
+
+
+## @section AI Services
+## Optional AI sidecar pods. Both are disabled by default and can be independently toggled.
+## They run at the same rootless security posture as the main pod.
+## NOTE: enabling either pod requires dnsPolicy: ClusterFirst (see above) — the httpd
+## reverse proxy must resolve the in-cluster llama/mcp Services via cluster DNS. The chart
+## fails fast at render if AI is enabled while dnsPolicy is 'Default'.
+
+## @param ai.llama.enabled [default: false] Enable the llama-cpp inference server pod.
+## @param ai.llama.image Docker image for the llama-cpp server.
+## @param ai.llama.tag Docker image tag. [default: empty -> .Chart.AppVersion at render]
+## @param ai.llama.port Container port the llama server listens on.
+## @param ai.llama.modelName GGUF model filename stored under /data/models/.
+## @param ai.llama.downloadUrl Full URL to download the model from if not already present.
+## @param ai.llama.bundledModelHostPath [default: empty] Airgap only — host directory holding the pre-bundled model; set by the airgap installer, mounted read-only so start.sh seeds the model instead of downloading. Empty = normal online download (no hostPath mount rendered).
+## @param ai.llama.modelNodeName [default: empty] REQUIRED when bundledModelHostPath is set — the real Kubernetes node name (see `kubectl get nodes`) where the model file was placed; backs the static local PV's nodeAffinity. No default is provided; the installer/ansible role must pass this explicitly for the target cluster/node.
+## @param ai.llama.bundledModelCapacity [default: 20Gi] Capacity for the static local PV/PVC backing bundledModelHostPath. Only rendered when bundledModelHostPath is set.
+## @param ai.llama.threads Number of CPU threads for inference.
+## @param ai.llama.ctxSize Context size in tokens.
+## @param ai.llama.gpuLayers Number of layers to offload to GPU (0 = CPU-only).
+## @param ai.llama.apiKey Static API key llama-server enforces on its API and web UI. SHARED DEFAULT - change it. Stored in a Secret.
+## @param ai.llama.existingSecretName [default: empty] BYO Secret holding the api key; overrides apiKey. Else chart creates <release>-llama-api-key.
+## @param ai.llama.existingSecretKey [default: LLAMA_API_KEY] Key within the api-key Secret.
+## @param ai.llama.hfToken.enabled [default: false] Enable HF_TOKEN injection for gated model downloads.
+## @param ai.llama.webui.enabled [default: false] Expose the llama web UI (drops --no-webui).
+## @param ai.llama.webui.path [default: /llama] Sub-path the web UI is served under (httpd + --api-prefix).
+## @param ai.llama.gpu.enabled [default: false] Request a GPU (ignored on Fargate). Only NVIDIA GPUs are supported. For AMD GPU support, contact Hyperglance support at https://www.hyperglance.com/contact/.
+## @param ai.llama.gpu.count [default: 1] Number of GPUs to request.
+## @param ai.llama.gpu.runtimeClassName [default: nvidia] RuntimeClass for the llama pod when GPU is enabled; must match the NVIDIA GPU Operator's installed RuntimeClass name.
+## @param ai.llama.nodeSelector/affinity/tolerations llama-specific scheduling (e.g. pin to a GPU pool).
+## @param ai.llama.resources Defaults sized for the default model; raise for larger models.
+## @param ai.llama.enable_security_context [default: true] Enables the securityContext block.
+## @param ai.llama.pvc.storageRequest [default: 20Gi] Size of the model PVC.
+ai:
+  llama:
+    enabled: false
+    image: hyperglance/llama-cpp
+    tag:
+    webui:
+      enabled: false
+      path: "/llama"
+    pvc:
+      annotations: {}
+      storageRequest: 20Gi
+    port: 8080
+    podAnnotations: {}
+    modelName: "gemma-4-E2B_q4_0-it.gguf"
+    # Pinned to a known-good commit: the 2026-07-15 update to this HuggingFace repo's `main`
+    # revision (a chat-template metadata fix) accidentally dropped a leading character from
+    # several vocab token strings, creating duplicate tokens that abort llama.cpp's vocab loader
+    # (GGML_ASSERT(id_to_token.size() == token_to_id.size()) — see ggml-org/llama.cpp#25739).
+    # `69536a2` is the last commit before that regression. To track upstream's latest instead of
+    # this pinned known-good revision, use:
+    # https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf/resolve/main/gemma-4-E2B_q4_0-it.gguf
+    downloadUrl: "https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf/resolve/69536a2/gemma-4-E2B_q4_0-it.gguf"
+    # Airgap only: host dir holding the pre-bundled model, mounted read-only. Set by the
+    # installer (ansible install-hyperglance.yml). Empty online → no hostPath mount, normal download.
+    bundledModelHostPath: ""
+    # Node bundledModelHostPath lives on — backs the static local PV's nodeAffinity. REQUIRED
+    # when bundledModelHostPath is set: must match the real Kubernetes node name (see
+    # `kubectl get nodes`) where the bundled model file was placed. No default is provided —
+    # the installer/ansible role must pass this explicitly for the target cluster/node; it is
+    # not meaningful on its own without bundledModelHostPath also being set.
+    modelNodeName: ""
+    # Capacity for the static local PV/PVC backing bundledModelHostPath. Headroom over the
+    # current ~3.2GB default model for larger future models.
+    bundledModelCapacity: 20Gi
+    threads: 4
+    ctxSize: 4096
+    gpuLayers: 0
+    apiKey: "hyperglance-llama-change-me"
+    # API key is stored in a Secret. Set existingSecretName to bring your own; otherwise
+    # the chart creates <release>-llama-api-key from apiKey above.
+    existingSecretName: ""
+    existingSecretKey: "LLAMA_API_KEY"
+    hfToken:
+      enabled: false
+      existingSecretName: ""
+      existingSecretKey: "HF_TOKEN"
+      value: ""
+    gpu:
+      enabled: false
+      count: 1
+      runtimeClassName: "nvidia"
+    nodeSelector: {}
+    affinity: {}
+    tolerations: {}
+    # Defaults sized for the DEFAULT model (gemma-4-E2B q4_0, ~3.2GB) at ctxSize 4096.
+    # If you change modelName to a LARGER model, RAISE these: roughly (model file size)
+    # + 1-2GB for KV cache/overhead at ctxSize 4096, and more for larger ctxSize.
+    # Under-provisioning risks OOM-kill during load/inference.
+    resources:
+      requests:
+        memory: 6Gi
+        cpu: "2"
+      limits:
+        memory: 8Gi
+        cpu: "4"
+    enable_security_context: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ['ALL']
+      runAsNonRoot: true
+      readOnlyRootFilesystem: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    # Health is an exec curl built by statefulset-llama.yaml from ai.llama.webui.path + the
+    # api key (httpGet can't carry the bearer token, and a BYO secret has no plaintext to
+    # inline). Only the timing fields below are honoured here.
+    startupProbe:
+      periodSeconds: 10
+      failureThreshold: 180
+    readinessProbe:
+      periodSeconds: 10
+
+## @param ai.mcp.enabled [default: false] Enable the MCP server pod (for external AI agents).
+## @param ai.mcp.image Docker image for the MCP server.
+## @param ai.mcp.tag Docker image tag. [default: empty -> .Chart.AppVersion at render]
+## @param ai.mcp.port Container port the MCP HTTP server listens on.
+## @param ai.mcp.hgUrl In-cluster Hyperglance API URL. [default: empty -> https://<release>-internal:8443]
+## @param ai.mcp.hgApi.enabled [default: false] Provide an optional server-side HGAPI credential.
+## @param ai.mcp.hgApi.authorization The Authorization header value shown when the API key was
+## created in the Hyperglance UI (e.g. "Basic dGVzdGluZzpl..."). Pasted verbatim, not split.
+## @param ai.mcp.nodeSelector/affinity/tolerations mcp-specific scheduling (e.g. pin to a dedicated pool).
+## @param ai.mcp.enable_security_context [default: true] Enables the securityContext block.
+## @param ai.mcp.terminationGracePeriodSeconds Pod termination grace. Must exceed the MCP server's
+## own drain window (MCP_SHUTDOWN_GRACE_MS, default HG_TIMEOUT_MS + 5s = 35s) so k8s does not
+## SIGKILL the pod mid-drain. Raise in lockstep if HG_TIMEOUT_MS is increased.
+  mcp:
+    enabled: false
+    image: hyperglance/mcp
+    tag:
+    port: 3001
+    hgUrl: ""
+    hgApi:
+      enabled: false
+      existingSecretName: ""
+      existingSecretKey: "HG_AUTHORIZATION"
+      authorization: ""
+    podAnnotations: {}
+    nodeSelector: {}
+    affinity: {}
+    tolerations: []
+    # Modest defaults for the lightweight Node proxy. No CPU limit (avoids CFS throttling on a
+    # latency-sensitive proxy); the memory limit guards against runaway growth / OOM.
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+    enable_security_context: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ['ALL']
+      runAsNonRoot: true
+      readOnlyRootFilesystem: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    # Probe port is derived from ai.mcp.port at render time — do not set httpGet.port here.
+    readinessProbe:
+      periodSeconds: 10
+      failureThreshold: 3
+    livenessProbe:
+      periodSeconds: 10
+      failureThreshold: 3
+      initialDelaySeconds: 15
+    terminationGracePeriodSeconds: 45
 
 
 ## @section Other parameters
 
-## @param dnsPolicy DNSPolicy for pod.
-dnsPolicy: 'Default'
+## @param dnsPolicy DNSPolicy for pod. MUST be 'ClusterFirst' when AI (ai.llama / ai.mcp)
+## is enabled: the httpd reverse proxy resolves the in-cluster llama/mcp Services via
+## cluster DNS (CoreDNS). 'Default' uses node DNS and cannot resolve cluster Services, which
+## silently breaks /llama and /mcp. The chart fails fast at render if AI is on with 'Default'.
+dnsPolicy: 'ClusterFirst'
 
 ## @param replicaCount Number of replicas of the Hyperglance deployment
 replicaCount: 1
@@ -455,6 +631,7 @@ servicehttp:
 servicehttps:
   port: 443
 
+## @param privateImageRepo [DEPRECATED] Single private registry. Retained for backward compatibility — prefer privateImageRepos (the map below). Still honoured if set.
 ## @param privateImageRepo.enabled [default: false] Enable the use of a private rep. Generally only used for internal use.
 ## @param existingSecretName [default: empty/unset] You may override the parameters here with an existing secret that contains the required data. Please see the readme for expected layout. Takes precedence over other values if set.
 ## @param privateImageRepo.registry [default: https://index.docker.io/v1/]
@@ -465,9 +642,16 @@ privateImageRepo:
   enabled: false
   existingSecretName:
   registry: https://index.docker.io/v1/
-  username: 
-  password: 
-  email: 
+  username:
+  password:
+  email:
+
+## @param privateImageRepos [default: {}] Map of ADDITIONAL private registries, keyed by name.
+##   Each entry mirrors privateImageRepo (enabled/existingSecretName/registry/username/password/email).
+##   Processed ADDITIVELY alongside privateImageRepo, so existing single-repo configs keep working.
+##   Keys become part of a Secret name (<release>-repo-secret-<key>), so each key MUST be a DNS-1123
+##   label: lowercase alphanumeric or '-', starting and ending alphanumeric.
+privateImageRepos: {}
 
 ## @param serviceAccount.enabled Enable a AWS service account.
 ## @param serviceAccount.name Service account name
@@ -478,9 +662,11 @@ serviceAccount:
   iamRole: 
 
 ## @param imagePullPolicy [default: Always]
-## @param restartPolicy [default: Always]
 imagePullPolicy: Always
-restartPolicy: Always
+## restartPolicy is intentionally not a parameter. Kubernetes only accepts "Always" for
+## StatefulSet/Deployment pods — the API server rejects "OnFailure"/"Never" — so the chart
+## hardcodes "Always" in the templates. Exposing it here would only invite a value that
+## silently does nothing (any existing override is harmlessly ignored after this change).
 
 ## @param frontend_dev.enabled
 ## @param frontend_dev.image
@@ -527,7 +713,14 @@ fargate:
       storageCapacity: 20Gi
     hyperglance:
       accesspoint_id: fsap-xxxx
-      sub_path: 
+      sub_path:
+      storageCapacity: 20Gi
+    ## @param fargate.efs.llama.accesspoint_id EFS Access Point ID for llama model data (fsap-xxxx). Only used when ai.llama.enabled.
+    ## @param fargate.efs.llama.sub_path EFS sub path for llama model data.
+    ## @param fargate.efs.llama.storageCapacity Storage capacity for the llama model volume.
+    llama:
+      accesspoint_id: fsap-xxxx
+      sub_path:
       storageCapacity: 20Gi
   albCertificateArn: arn:aws:acm:xxxx
 

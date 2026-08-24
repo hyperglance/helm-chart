@@ -1,0 +1,32 @@
+{{- if and .Values.ai.llama.bundledModelHostPath (not .Values.fargate.enabled) }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "{{ .Release.Name }}-llama-model"
+  labels:
+    app: {{ include "hyperglance.name" . }}-llama
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  capacity:
+    storage: {{ .Values.ai.llama.bundledModelCapacity | default "20Gi" }}
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  # Explicit empty string, not merely absent: k3s ships local-path as its default
+  # StorageClass, and DefaultStorageClass would otherwise stamp it onto a PVC that
+  # omits storageClassName, which then can't bind to this PV.
+  storageClassName: ""
+  local:
+    path: {{ .Values.ai.llama.bundledModelHostPath | quote }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.ai.llama.modelNodeName | quote }}
+{{- end }}

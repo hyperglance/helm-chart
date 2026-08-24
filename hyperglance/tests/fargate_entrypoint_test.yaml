@@ -1,0 +1,42 @@
+suite: Fargate entry point is a single ALB Ingress backed by one ClusterIP Service
+# Locks in the phase-4 decision (plan_phase4.md): the ALB Ingress is the sole Fargate entry
+# point; its backend is a ClusterIP Service whose selector matches the pod label. Guards against
+# regressions that reintroduce a type:LoadBalancer/NLB Service (redundant 2nd load balancer) or
+# the deleted service.yaml Fargate block (vestigial, selector never matched the pod label).
+tests:
+  - it: loadbalancer.yaml renders a ClusterIP backend with a selector matching the pod label
+    template: loadbalancer.yaml
+    set:
+      fargate.enabled: true
+      fargate.namespace: hg
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.selector.app
+          value: hyperglance-helm
+      - notExists:
+          path: metadata.annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+  - it: service.yaml renders no Fargate Service (vestigial block deleted)
+    template: service.yaml
+    set:
+      fargate.enabled: true
+      fargate.namespace: hg
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: the ALB Ingress backend name matches the ClusterIP Service name
+    template: ingress.yaml
+    set:
+      fargate.enabled: true
+      fargate.namespace: hg
+      fargate.hg_url: hg.example.com
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: hyperglance-helm

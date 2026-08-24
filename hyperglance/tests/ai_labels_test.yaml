@@ -1,0 +1,55 @@
+suite: AI pod labels follow hyperglance.name and are release-independent
+# Locks in the convention: pod labels/selectors use the chart-name-derived hyperglance.name,
+# while object/Service DNS names stay release-based. Rendered under a custom release name so
+# any regression to .Release.Name-based labels would break the selectors here.
+release:
+  name: myrel
+tests:
+  - it: llama StatefulSet object name uses the release, labels/selector use hyperglance.name
+    template: statefulset-llama.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+    asserts:
+      - equal:
+          path: metadata.name
+          value: myrel-llama
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: hyperglance-helm-llama
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: hyperglance-helm-llama
+  - it: llama Service selector matches the pod label
+    template: service-llama.yaml
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+    asserts:
+      - equal:
+          path: metadata.name
+          value: myrel-llama
+      - equal:
+          path: spec.selector.app
+          value: hyperglance-helm-llama
+  - it: mcp Deployment labels/selector use hyperglance.name
+    template: deployment-mcp.yaml
+    set:
+      ai.mcp.enabled: true
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.selector.matchLabels.app
+          value: hyperglance-helm-mcp
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: hyperglance-helm-mcp
+  - it: mcp Service selector matches the pod label
+    template: service-mcp.yaml
+    set:
+      ai.mcp.enabled: true
+    asserts:
+      - equal:
+          path: spec.selector.app
+          value: hyperglance-helm-mcp

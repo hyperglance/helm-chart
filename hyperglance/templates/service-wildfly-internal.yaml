@@ -1,0 +1,24 @@
+{{- if .Values.ai.mcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-internal
+  labels:
+    app: {{ template "hyperglance.name" . }}
+    chart: {{ template "hyperglance.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  # Internal-only ClusterIP giving the MCP pod a stable target for the Hyperglance
+  # /hgapi endpoint on Wildfly's 8443, independent of bypassHttpd and without
+  # exposing Wildfly outside the cluster. https-only: hgapi.war enforces a CONFIDENTIAL
+  # transport-guarantee and 302-redirects any plain-HTTP request to 8443 anyway.
+  type: ClusterIP
+  ports:
+    - port: 8443
+      targetPort: 8443
+      protocol: TCP
+      name: https-internal
+  selector:
+    app: {{ template "hyperglance.name" . }}
+{{- end }}

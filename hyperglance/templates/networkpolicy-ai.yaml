@@ -1,0 +1,82 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- if .Values.ai.llama.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-llama
+  labels:
+    {{- include "hyperglance.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "hyperglance.name" . }}-llama
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Inference + (optional) web UI traffic from the main Hyperglance pod (wildfly/httpd).
+    - from:
+        - podSelector:
+            matchLabels:
+              app: {{ template "hyperglance.name" . }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.ai.llama.port | default 8080 }}
+  egress:
+    # DNS + outbound HTTPS for the first-run model download.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+        - protocol: TCP
+          port: 443
+{{- end }}
+{{- if .Values.ai.mcp.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-mcp
+  labels:
+    {{- include "hyperglance.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "hyperglance.name" . }}-mcp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # MCP protocol traffic proxied in from httpd (/mcp) on the main pod.
+    - from:
+        - podSelector:
+            matchLabels:
+              app: {{ template "hyperglance.name" . }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.ai.mcp.port | default 3001 }}
+  egress:
+    # DNS.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # /hgapi calls back to Wildfly via the internal ClusterIP service, https-only (8443).
+    - to:
+        - podSelector:
+            matchLabels:
+              app: {{ template "hyperglance.name" . }}
+      ports:
+        - protocol: TCP
+          port: 8443
+{{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+suite: llama GPU vs Fargate resource handling
+templates:
+  - statefulset-llama.yaml
+tests:
+  - it: adds the nvidia.com/gpu limit on a non-Fargate cluster
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.gpu.enabled: true
+      fargate.enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits["nvidia.com/gpu"]
+          value: 1
+  - it: suppresses the GPU limit on Fargate (no GPU support)
+    set:
+      ai.llama.enabled: true
+      ai.llama.apiKey: testkey
+      ai.llama.gpu.enabled: true
+      fargate.enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].resources.limits["nvidia.com/gpu"]
