@@ -9,6 +9,12 @@ tests:
     set:
       fargate.enabled: true
       fargate.namespace: hg
+      # Required once servicehttp.port/servicehttps.port below 1024 trigger the
+      # Fargate fail-fast guard (statefulset.yaml) — this suite predates and is
+      # unrelated to that feature, but helm-unittest renders the whole chart for
+      # every test, so any fargate.enabled: true test now needs raised ports too.
+      servicehttp.port: 8080
+      servicehttps.port: 8443
     asserts:
       - isKind:
           of: Service
@@ -25,6 +31,12 @@ tests:
     set:
       fargate.enabled: true
       fargate.namespace: hg
+      # Required once servicehttp.port/servicehttps.port below 1024 trigger the
+      # Fargate fail-fast guard (statefulset.yaml) — this suite predates and is
+      # unrelated to that feature, but helm-unittest renders the whole chart for
+      # every test, so any fargate.enabled: true test now needs raised ports too.
+      servicehttp.port: 8080
+      servicehttps.port: 8443
     asserts:
       - hasDocuments:
           count: 0
@@ -33,6 +45,12 @@ tests:
     set:
       fargate.enabled: true
       fargate.namespace: hg
+      # Required once servicehttp.port/servicehttps.port below 1024 trigger the
+      # Fargate fail-fast guard (statefulset.yaml) — this suite predates and is
+      # unrelated to that feature, but helm-unittest renders the whole chart for
+      # every test, so any fargate.enabled: true test now needs raised ports too.
+      servicehttp.port: 8080
+      servicehttps.port: 8443
       fargate.hg_url: hg.example.com
     asserts:
       - isKind:

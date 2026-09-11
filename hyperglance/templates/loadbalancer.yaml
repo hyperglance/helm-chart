@@ -20,7 +20,7 @@ spec:
   type: ClusterIP
   ports:
   - port: {{ .Values.fargate.service.https.port | default 443 }}
-    targetPort: 443
+    targetPort: {{ .Values.servicehttps.port }}
     protocol: TCP
     name: https
   selector:

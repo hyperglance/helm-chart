@@ -1,0 +1,138 @@
+suite: httpd privileged-port sysctl auto-injection (statefulset securityContext)
+templates:
+  - statefulset.yaml
+tests:
+  - it: adds ip_unprivileged_port_start when both ports are at their defaults (80/443, both privileged)
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+
+  - it: omits the sysctl entirely when both ports are raised to >=1024
+    set:
+      servicehttp.port: 8080
+      servicehttps.port: 8443
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.sysctls
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 9999
+      - equal:
+          path: spec.template.spec.securityContext.fsGroupChangePolicy
+          value: OnRootMismatch
+
+  - it: exactly 1024 is treated as non-privileged (boundary case)
+    set:
+      servicehttp.port: 1024
+      servicehttps.port: 1024
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.sysctls
+
+  - it: 1023 is treated as privileged (one below the boundary)
+    set:
+      servicehttp.port: 1023
+      servicehttps.port: 8443
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "1023"
+
+  - it: APACHE_DISABLE_HTTPS true excludes servicehttps.port from consideration, http port still drives the sysctl
+    set:
+      servicehttp.port: 80
+      servicehttps.port: 443
+      hyperglanceEnvVars.APACHE_DISABLE_HTTPS: true
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+
+  - it: APACHE_DISABLE_HTTPS true + http port raised above 1024 needs no sysctl at all
+    set:
+      servicehttp.port: 8080
+      hyperglanceEnvVars.APACHE_DISABLE_HTTPS: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.sysctls
+
+  - it: a quoted "false" string for APACHE_DISABLE_HTTPS is NOT treated as disabling HTTPS (Go template truthiness regression guard)
+    set-string:
+      hyperglanceEnvVars.APACHE_DISABLE_HTTPS: "false"
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+
+  - it: lowest-of-both-privileged-ports is picked when both are below 1024 and differ
+    set:
+      servicehttp.port: 80
+      servicehttps.port: 8
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "8"
+
+  - it: a user-supplied podSecurityContext.sysctls is never overridden by the auto-logic
+    set:
+      podSecurityContext:
+        fsGroup: 9999
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "1"
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.sysctls
+          value:
+            - name: net.ipv4.ip_unprivileged_port_start
+              value: "1"
+
+  - it: other podSecurityContext keys set by the user survive alongside the auto-injected sysctl
+    set:
+      podSecurityContext:
+        fsGroup: 12345
+        fsGroupChangePolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 12345
+      - equal:
+          path: spec.template.spec.securityContext.fsGroupChangePolicy
+          value: Always
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "80"
+
+  - it: explicit httpd container env wins over a colliding hyperglanceEnvVars key (regression test for the ConfigMap-collision fix)
+    set:
+      servicehttp.port: 8080
+      hyperglanceEnvVars.APACHE_HTTP_PORT: "9999"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name=="httpd")].env[?(@.name=="APACHE_HTTP_PORT")].value
+          value: "8080"
+
+  - it: bypassHttpd.enabled does not change the httpd container's own sysctl behaviour (extra wildfly ports are additive, not a replacement)
+    set:
+      bypassHttpd.enabled: true
+      bypassHttpd.wildfly_http_port: 8080
+      bypassHttpd.wildfly_https_port: 8443
+    asserts:
+      - contains:
+          path: spec.template.spec.securityContext.sysctls
+          content:
+            name: net.ipv4.ip_unprivileged_port_start
+            value: "80"

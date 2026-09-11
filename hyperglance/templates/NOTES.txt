@@ -5,13 +5,13 @@
 |    | |_| |\ V /| |_) |  _| | |_) | |  _| |     / _ \ |  \| | |   |  _|                                 |
 |    |  _  | | | |  __/| |___|  _ <| |_| | |___ / ___ \| |\  | |___| |___                                |
 |    |_| |_| |_| |_|   |_____|_| \_\\____|_____/_/   \_\_| \_|\____|_____|                               |
-{{- if eq (lower (default "" .Values.RUNNING_IN)) "" }}
+{{- if eq (lower (default "" .Values.hyperglanceEnvVars.RUNNING_IN)) "" }}
 |                                                                                                        |
 |    =======================                                                                             |
 |    Hyperglance Helm Chart.                                                                             |
 |    =======================                                                                             |
 |                                                                                                        |
-|    Listening on port 443 (HTTPS).                                                                      |
+|    Listening on port {{ .Values.servicehttps.port }} (HTTPS).                                                                      |
 |                                                                                                        |
 |    HOW TO CONNECT                                                                                      |
     {{- if .Values.fargate.enabled }}
@@ -21,7 +21,7 @@
 |                                                                                                        |
 |            Tip: Omit the '-n hyperglance' if you deployed into the default namespace                   |
 |                                                                                                        |
-|        2. Visit https://<IngressIP> in your browser.                                                   |
+|        2. Visit https://<IngressIP>{{ if ne (int .Values.servicehttps.port) 443 }}:{{ .Values.servicehttps.port }}{{ end }} in your browser.                                                   |
     {{- else }}
 |        1. Get the external IP of the pod by running:                                                   |
 |                                                                                                        |
@@ -29,7 +29,7 @@
 |                                                                                                        |
 |            Tip: Omit the '-n hyperglance' if you deployed into the default namespace                   |
 |                                                                                                        |
-|        2. Visit https://<ExternalIP> in your browser.                                                  |
+|        2. Visit https://<ExternalIP>{{ if ne (int .Values.servicehttps.port) 443 }}:{{ .Values.servicehttps.port }}{{ end }} in your browser.                                                  |
     {{- end }}
 |                                                                                                        |
 |    Note: Please allow up to 5 minutes for the Hyperglance WebUI to become available.                   |
@@ -39,16 +39,16 @@
 |        Default Password: admin                                                                         |
 |                                                                                                        |
 {{- else }}
-     {{- if eq (lower (default "" .Values.RUNNING_IN)) "sandbox" }}
+     {{- if eq (lower (default "" .Values.hyperglanceEnvVars.RUNNING_IN)) "sandbox" }}
 |                                                                                                        |
 |    ====================                                                                                |
 |    Hyperglance Sandbox.                                                                                |
 |    ====================                                                                                |
 |                                                                                                        |
-|    Listening on port 443 (HTTPS).                                                                      |
+|    Listening on port {{ .Values.servicehttps.port }} (HTTPS).                                                                      |
 |                                                                                                        |
 |    HOW TO CONNECT                                                                                      |
-|        Visit https://localhost in your browser                                                         |
+|        Visit https://localhost{{ if ne (int .Values.servicehttps.port) 443 }}:{{ .Values.servicehttps.port }}{{ end }} in your browser                                                         |
 |        Default User: admin                                                                             |
 |        Default Password: admin                                                                         |
 |                                                                                                        |
@@ -60,11 +60,11 @@
 |    Hyperglance Marketplace Deployment.                                                                 |
 |    ===================================                                                                 |
 |                                                                                                        |
-|    Listening on port 443 (HTTPS).                                                                      |
+|    Listening on port {{ .Values.servicehttps.port }} (HTTPS).                                                                      |
 |                                                                                                        |
 |    HOW TO CONNECT                                                                                      |
 |        1. Get the Public IP of this VM                                                                 |
-|        2. Visit https://<PublicIP> in your browser                                                     |
+|        2. Visit https://<PublicIP>{{ if ne (int .Values.servicehttps.port) 443 }}:{{ .Values.servicehttps.port }}{{ end }} in your browser                                                     |
 |                                                                                                        |
 |        Note: Please allow up to 5 minutes for the Hyperglance WebUI to become available.               |
 |                                                                                                        |

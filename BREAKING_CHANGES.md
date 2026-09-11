@@ -14,6 +14,7 @@
          name: my-ingress
          namespace: default
      ```
+   - `servicehttp.port`/`servicehttps.port` below `1024` now require a pod-level `net.ipv4.ip_unprivileged_port_start` sysctl, which the chart adds automatically — except when `fargate.enabled: true`, where support for this sysctl on EKS Fargate is unconfirmed and the chart now fails fast at render instead of deploying a potentially-broken pod. **If you run this chart on EKS Fargate at the default ports (`80`/`443`), you must set both `servicehttp.port` and `servicehttps.port` to `1024` or higher before upgrading**, or the `helm upgrade` will fail with an explicit error. This also changes the ALB's public-facing listener ports (`alb.ingress.kubernetes.io/listen-ports`/`ssl-redirect` now track the same values) — your Fargate deployment's internet-facing endpoint will move off `80`/`443` as a consequence.
 
 **10/02/2026**
 

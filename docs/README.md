@@ -142,11 +142,18 @@ To customize the Hyperglance deployment, a values.yaml can be created and passed
 
 The minimum configuration options to provide are:
 ```yaml
-## @param URL Set the URL that Hyperglance can be reached on.
-URL: ''
+hyperglanceEnvVars:
+  ## @param URL Set the URL that Hyperglance can be reached on.
+  URL: ''
 ```
 
 A number of additional configuration parameters are exposed. Please see the `values.yaml` file for all the available parameters and associated documentation.
+
+## HTTP/HTTPS Ports
+
+`servicehttp.port` (default `80`) and `servicehttps.port` (default `443`) are dual-purpose: they set the Kubernetes Service's external port **and** the httpd container's actual listen port. If you change either value, the chart automatically adds a pod-level `net.ipv4.ip_unprivileged_port_start` sysctl whenever the configured port is below `1024`, so the non-root httpd container can still bind it — you do not need to configure this yourself.
+
+This sysctl is what makes the chart self-sufficient when running on a cluster you manage yourself (e.g. EKS), where there is no platform-level default that already lowers this value. Without it, a self-managed cluster running at the default ports (`80`/`443`) would fail to start httpd with a permission error. If you have already hand-set `podSecurityContext.sysctls` yourself, the chart will not override it.
 
 ## NetworkPolicy
 The chart can create a NetworkPolicy to lock down traffic to the Hyperglance pods.
@@ -528,6 +535,8 @@ httpdSSL:
 
 Next, we need to apply the following Istio gateway and virtualservice files. Please amend as required for your set up.
 
+**Note:** the example below hardcodes ports `80`/`443` throughout. If you have set `servicehttp.port`/`servicehttps.port` to non-default values, update the `port.number` fields (Gateway) and `destination.port.number` (VirtualService) to match, or traffic will be misrouted.
+
 ```yaml
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -591,11 +600,11 @@ service:
 # The default policy for our marketplace images is "Default", but ClusterFirst is required for the istio sidecar to function correctly.
 dnsPolicy: ClusterFirst
 
-# This must be set to the fqdn of your hyperglance instance, including the scheme.
-URL: 'https://hyperglance.example.com'
-# This disable tls on the apache container
-
-APACHE_DISABLE_HTTPS: true
+hyperglanceEnvVars:
+  # This must be set to the fqdn of your hyperglance instance, including the scheme.
+  URL: 'https://hyperglance.example.com'
+  # This disables tls on the apache container
+  APACHE_DISABLE_HTTPS: true
 ```
 
 Next, we need to create a secret of type tls within the cluster to store the tls certificate and key. That can be done by:
@@ -611,6 +620,8 @@ Please note. Depending on your Istio installation method, the namespace for your
 You can skip this step if you already have a gateway defined that you wish to reuse.
 
 With those options applied, you can then use the following Istio gateway and virtual service. Pleae amend as required for your own scenario. You may wish to remove the Gateway section if you are reusing and exising gateway.
+
+**Note:** the example below hardcodes ports `80`/`443` throughout. If you have set `servicehttp.port`/`servicehttps.port` to non-default values, update the `port.number` fields (Gateway) and `destination.port.number` (VirtualService) to match, or traffic will be misrouted.
 
 ```yaml
 ---

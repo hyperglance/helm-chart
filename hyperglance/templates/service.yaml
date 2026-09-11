@@ -17,11 +17,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.servicehttp.port }}
-      targetPort: 80
+      targetPort: {{ .Values.servicehttp.port }}
       protocol: TCP
       name: http
     - port: {{ .Values.servicehttps.port }}
-      targetPort: 443
+      targetPort: {{ .Values.servicehttps.port }}
       protocol: TCP
       name: https
     {{ if .Values.bypassHttpd.enabled }}

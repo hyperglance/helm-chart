@@ -9,6 +9,25 @@
 {{- fail "ai.llama/ai.mcp require in-cluster Service DNS. Set dnsPolicy: ClusterFirst (currently 'Default') so the httpd reverse proxy can resolve the llama/mcp Services." }}
 {{- end }}
 {{- end }}
+{{- /*
+  A configured servicehttp.port/servicehttps.port below 1024 requires a pod-level
+  net.ipv4.ip_unprivileged_port_start sysctl (below) so the non-root httpd container can
+  still bind it. Whether EKS Fargate's kubelet supports the sysctls pod securityContext
+  field at all is unconfirmed (aws/containers-roadmap#967, still open) — fail fast rather
+  than deploy a pod that may silently be rejected or misbehave. $httpPriv/$httpsPriv are
+  reused (not recomputed) in the securityContext block below — one source of truth.
+  hyperglanceEnvVars.APACHE_DISABLE_HTTPS is compared as a lowercased string, matching the
+  container's own literal comparison (APACHE_DISABLE_HTTPS,, == "true") exactly — Go
+  template truthiness on a *quoted* "false" string evaluates the opposite of what the
+  container's own logic would do, so `not .Values...APACHE_DISABLE_HTTPS` must not be used
+  here.
+*/}}
+{{- $httpPriv := lt (int .Values.servicehttp.port) 1024 }}
+{{- $httpsDisabled := eq (.Values.hyperglanceEnvVars.APACHE_DISABLE_HTTPS | toString | lower) "true" }}
+{{- $httpsPriv := and (not $httpsDisabled) (lt (int .Values.servicehttps.port) 1024) }}
+{{- if and .Values.fargate.enabled (or $httpPriv $httpsPriv) }}
+{{- fail "servicehttp.port/servicehttps.port below 1024 require a pod-level net.ipv4.ip_unprivileged_port_start sysctl, whose support on EKS Fargate is unconfirmed (see aws/containers-roadmap#967). Set both servicehttp.port and servicehttps.port to >=1024 when fargate.enabled is true." }}
+{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -62,11 +81,19 @@ spec:
         {{- $pullSecrets | nindent 6 }}
       {{- end }}
       securityContext:
-        {{- with .Values.podSecurityContext }}
-        {{- toYaml . | nindent 8 }}
+        {{- $baseSC := .Values.podSecurityContext | default (dict "fsGroup" 9999 "fsGroupChangePolicy" "OnRootMismatch") }}
+        {{- /* hasKey guard: a user who's already hand-set podSecurityContext.sysctls (the
+        customer-issue/notes.md point-fix) is never overridden — their explicit setting
+        wins outright. $httpPriv/$httpsPriv come from the Fargate guard above this file's
+        top — not recomputed here. */}}
+        {{- if and (or $httpPriv $httpsPriv) (not (hasKey $baseSC "sysctls")) }}
+        {{- $lowestPrivPort := 1024 }}
+        {{- if $httpPriv }}{{ $lowestPrivPort = (int .Values.servicehttp.port) }}{{- end }}
+        {{- if and $httpsPriv (lt (int .Values.servicehttps.port) $lowestPrivPort) }}{{ $lowestPrivPort = (int .Values.servicehttps.port) }}{{- end }}
+        {{- $sysctlSC := merge (dict "sysctls" (list (dict "name" "net.ipv4.ip_unprivileged_port_start" "value" ($lowestPrivPort | toString)))) $baseSC }}
+        {{- toYaml $sysctlSC | nindent 8 }}
         {{- else }}
-        fsGroup: 9999
-        fsGroupChangePolicy: OnRootMismatch
+        {{- toYaml $baseSC | nindent 8 }}
         {{- end }}
       initContainers:
       - name: init-apache
@@ -183,9 +210,13 @@ spec:
         - secretRef:
             name: "{{ .Release.Name }}-proxy-settings"
         {{ end }}
+        env:
+        - name: APACHE_HTTP_PORT
+          value: {{ .Values.servicehttp.port | quote }}
+        - name: APACHE_HTTPS_PORT
+          value: {{ .Values.servicehttps.port | quote }}
         {{- if .Values.ai.llama.enabled }}
         # llama api key for the /llama RequestHeader injection (browser web UI access).
-        env:
         - name: LLAMA_API_KEY
           valueFrom:
             secretKeyRef:

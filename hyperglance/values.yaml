@@ -1,4 +1,4 @@
-## Generated on: 24-08-2026 16:21:21
+## Generated on: 08-09-2026 15:06:16
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -32,7 +32,8 @@ hyperglanceEnvVars:
   USE_SECMGR: false
   USE_SECMGR_DEBUGGING: false
 
-  ## @param [default: false] Sets apache to run over port 80. Useful if you wish to terminate ssl yourself.
+  ## @param [default: false] Disables HTTPS entirely — httpd never binds servicehttps.port at
+  ##   all (no sysctl is added for it either). Useful if you wish to terminate ssl yourself.
   APACHE_DISABLE_HTTPS: false
 
 ## @section Hyperglance Apache SSL parameters
@@ -188,6 +189,10 @@ customPostgres:
 ## Kubernetes NetworkPolicies are optional. When enabled, only explicitly allowed traffic can reach the Hyperglance pods.
 ## @param networkPolicy.enabled [default: false] Enable creation of a NetworkPolicy for the StatefulSet pods.
 ## @param networkPolicy.ingress List of ingress rules. Defaults allow HTTPS/HTTP from within the namespace so services such as Istio sidecars still work.
+##   NOTE: this default's port (443) does NOT automatically track servicehttps.port — if you
+##   enable networkPolicy and also change servicehttps.port, update this list's port to match,
+##   or inbound traffic on the new port will be blocked (NetworkPolicy ports match the pod's
+##   real listening port, not the Service).
 ## @param networkPolicy.egress List of egress rules. Defaults allow DNS + outbound HTTPS/HTTP.
 networkPolicy:
   enabled: false
@@ -623,11 +628,23 @@ bypassHttpd:
   wildfly_http_port: 8080
   wildfly_https_port: 8443
 
-## @param servicehttp.port
+## @param servicehttp.port [default: 80] The Service's external HTTP port AND the httpd
+##   container's actual Listen/VirtualHost bind port. Setting this below 1024 auto-adds a
+##   pod-level net.ipv4.ip_unprivileged_port_start sysctl so the non-root httpd container can
+##   still bind it (skipped automatically once the port is >=1024). Not supported on EKS
+##   Fargate at a privileged value — see fargate.enabled. If your cluster nodes run SELinux
+##   in enforcing mode with this container assigned the native httpd_t domain (not the
+##   container_t/spc_t domain most containerd/cri-o setups use by default — check your own
+##   environment), a port outside SELinux's default httpd_port_t allowlist
+##   (80/81/443/488/8008/8009/8443/9000) will need `semanage port -a -t http_port_t -p tcp
+##   <port>` run on that node before httpd can bind it.
 servicehttp:
   port: 80
 
-## @param servicehttps.port
+## @param servicehttps.port [default: 443] The Service's external HTTPS port AND the httpd
+##   container's actual Listen/VirtualHost bind port (unless hyperglanceEnvVars.APACHE_DISABLE_HTTPS
+##   is true, in which case httpd never binds this port at all). Same privileged-port sysctl,
+##   EKS Fargate, and SELinux caveats as servicehttp.port above.
 servicehttps:
   port: 443
 

@@ -10,8 +10,8 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": {{ .Values.servicehttp.port }}}, {"HTTPS":{{ .Values.servicehttps.port }}}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '{{ .Values.servicehttps.port }}'
     alb.ingress.kubernetes.io/certificate-arn: {{.Values.fargate.albCertificateArn}}
 spec:
   ingressClassName: alb
@@ -25,7 +25,13 @@ spec:
               service:
                 name: {{ template "hyperglance.name" . }}
                 # namespace: {{.Values.fargate.namespace }}
-                port: 
+                # Deliberately NOT servicehttps.port: this must match the backing Service's
+                # own exposed port (loadbalancer.yaml, .Values.fargate.service.https.port
+                # default 443) — a value intentionally decoupled from the pod's internal
+                # bind port. Tracking servicehttps.port here would break Ingress->Service
+                # routing the moment that value is raised (exactly what the Fargate guard
+                # above requires).
+                port:
                   number: 443
 {{ end }}
 {{ if .Values.customIngress.enabled }}
