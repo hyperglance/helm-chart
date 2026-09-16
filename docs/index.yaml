@@ -3,9 +3,9 @@ entries:
   hyperglance-helm:
   - apiVersion: v2
     appVersion: 10.0.5
-    created: "2026-09-11T12:03:03.56113388Z"
+    created: "2026-09-16T18:18:58.202897126Z"
     description: Cloud visualisation, Security and Compliance monitoring system
-    digest: dc2102f29d40dc3ea138036008cc7734bb42a1ea176a76787e9e56f710f9c448
+    digest: e6014bf0ccbddcf56c6af8560ca3037e395cdbdbec6351a8e077c8bdb30494a7
     home: https://www.hyperglance.com
     icon: https://hyperglance-public-assets.s3.us-east-2.amazonaws.com/hyperglance.png
     keywords:
@@ -3251,4 +3251,4 @@ entries:
     urls:
     - https://github.com/hyperglance/helm-chart/releases/download/v7.4.31/hyperglance-helm-7.4.31.tgz
     version: 7.4.31
-generated: "2026-09-11T12:03:03.555314222Z"
+generated: "2026-09-16T18:18:58.19723987Z"
