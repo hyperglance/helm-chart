@@ -19,7 +19,7 @@
 - [Private Image Registries](#private-image-registries)
 - [AI Features](#ai-features)
    * [MCP Server (`ai.mcp`)](#mcp-server-aimcp)
-   * [Llama Inference (`ai.llama`) — Beta, Unsupported](#llama-inference-aillama--beta-unsupported)
+   * [Llama Inference (`ai.llama`) — Beta](#llama-inference-aillama--beta)
 - [Use With EKS](#use-with-eks)
    * [Create An IAM Role And Policy for Hyperglance](#create-an-iam-role-and-policy-for-hyperglance)
    * [EKS With Fargate](#eks-with-fargate)
@@ -220,10 +220,9 @@ The chart can optionally deploy two AI-related components. Both are **off by def
 (`ai.llama.enabled: false`, `ai.mcp.enabled: false`) and are independent of each other — you
 can enable the MCP server without llama, or vice versa.
 
-> :warning: **Llama inference (`ai.llama`) is in beta and not currently supported.** This
+> :warning: **Llama inference (`ai.llama`) is in beta** This
 > includes GPU-accelerated inference (`ai.llama.gpu.enabled`). Enable it for evaluation only —
-> behaviour, defaults, and resource requirements may change without a deprecation notice, and
-> it is not covered by standard support channels.
+> behaviour, defaults, and resource requirements may change without a deprecation notice.
 
 ### MCP Server (`ai.mcp`)
 
@@ -265,11 +264,10 @@ over inlining `authorization` in a values file that ends up in version control.
 `https://<your-hyperglance-url>/mcp` using Streamable HTTP transport, with the `Authorization`
 header described above.
 
-### Llama Inference (`ai.llama`) — Beta, Unsupported
+### Llama Inference (`ai.llama`) — Beta
 
 `ai.llama` deploys an in-cluster [llama.cpp](https://github.com/ggml-org/llama.cpp) server
-used by certain AI-assisted features in the product. As noted above, **this component is beta
-and not currently supported** — including the GPU-acceleration path
+used by certain AI-assisted features in the product. As noted above, **this component is beta** — including the GPU-acceleration path
 (`ai.llama.gpu.enabled`, which requires an NVIDIA device plugin and RuntimeClass already
 configured on your cluster). If you enable it, expect to evaluate it standalone rather than
 rely on it for production workloads; see `values.yaml` for the full set of tunables (model
