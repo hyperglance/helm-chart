@@ -1,4 +1,4 @@
-## Generated on: 08-09-2026 15:06:16
+## Generated on: 01-10-2026 09:11:36
 
 ## @section Hyperglance parameters
 ## Hyperglance Application Parameters
@@ -543,19 +543,19 @@ ai:
     readinessProbe:
       periodSeconds: 10
 
-## @param ai.mcp.enabled [default: false] Enable the MCP server pod (for external AI agents).
-## @param ai.mcp.image Docker image for the MCP server.
-## @param ai.mcp.tag Docker image tag. [default: empty -> .Chart.AppVersion at render]
-## @param ai.mcp.port Container port the MCP HTTP server listens on.
-## @param ai.mcp.hgUrl In-cluster Hyperglance API URL. [default: empty -> https://<release>-internal:8443]
-## @param ai.mcp.hgApi.enabled [default: false] Provide an optional server-side HGAPI credential.
-## @param ai.mcp.hgApi.authorization The Authorization header value shown when the API key was
-## created in the Hyperglance UI (e.g. "Basic dGVzdGluZzpl..."). Pasted verbatim, not split.
-## @param ai.mcp.nodeSelector/affinity/tolerations mcp-specific scheduling (e.g. pin to a dedicated pool).
-## @param ai.mcp.enable_security_context [default: true] Enables the securityContext block.
-## @param ai.mcp.terminationGracePeriodSeconds Pod termination grace. Must exceed the MCP server's
-## own drain window (MCP_SHUTDOWN_GRACE_MS, default HG_TIMEOUT_MS + 5s = 35s) so k8s does not
-## SIGKILL the pod mid-drain. Raise in lockstep if HG_TIMEOUT_MS is increased.
+  ## @param ai.mcp.enabled [default: false] Enable the MCP server pod (for external AI agents).
+  ## @param ai.mcp.image Docker image for the MCP server.
+  ## @param ai.mcp.tag Docker image tag. [default: empty -> .Chart.AppVersion at render]
+  ## @param ai.mcp.port Container port the MCP HTTP server listens on.
+  ## @param ai.mcp.hgUrl In-cluster Hyperglance API URL. [default: empty -> https://<release>-internal:8443]
+  ## @param ai.mcp.hgApi.enabled [default: false] Provide an optional server-side HGAPI credential.
+  ## @param ai.mcp.hgApi.authorization The Authorization header value shown when the API key was
+  ## created in the Hyperglance UI (e.g. "Basic dGVzdGluZzpl..."). Pasted verbatim, not split.
+  ## @param ai.mcp.nodeSelector/affinity/tolerations mcp-specific scheduling (e.g. pin to a dedicated pool).
+  ## @param ai.mcp.enable_security_context [default: true] Enables the securityContext block.
+  ## @param ai.mcp.terminationGracePeriodSeconds Pod termination grace. Must exceed the MCP server's
+  ## own drain window (MCP_SHUTDOWN_GRACE_MS, default HG_TIMEOUT_MS + 5s = 35s) so k8s does not
+  ## SIGKILL the pod mid-drain. Raise in lockstep if HG_TIMEOUT_MS is increased.
   mcp:
     enabled: false
     image: hyperglance/mcp
